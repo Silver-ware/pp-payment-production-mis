@@ -1,0 +1,261 @@
+{% extends 'extends/setup_interface.html' %}
+
+{% block title %}Inventory and Categories{% endblock %}
+
+{% block section_title %}INVENTORY & PRODUCTION MATERIALS{% endblock %}
+
+{% block section_des %}
+  Organize your materials/products into categories for efficient management. 
+  Fields marked with <span class="font-bold text-red-500">*</span> are required.
+{% endblock %}
+
+{% block form_heading %}Add Inventory Details{% endblock %}
+
+{% block left_section_var %}
+  {% with panel_id="inventory_form" prev_background="linear-gradient(to bottom right, #4b5563, #047857)" next_background="linear-gradient(to bottom right, #047857, #eab308)" %}
+    {{block.super}}
+  {% endwith %}
+{% endblock left_section_var %}
+{% block form_block%}
+  {% with form_id="inventory_form" next_url='supplier' prev=True prev_url='equipment' %}
+    {{block.super}}
+  {% endwith %}
+{% endblock %}
+
+{% block form_fields %}
+<div class="relative">
+  <!-- Sidebar -->
+  <div id="inventory-sidebar" class="hidden absolute top-0 left-0 h-full w-full bg-gray-800 text-white overflow-y-auto shadow-md z-50">
+    <div class="p-4">
+      <div class="flex items-center w-full relative border-b border-gray-600 pb-2 mb-4">
+          <h3 class="text-lg font-bold">Materials in Inventory</h3>
+          <button id="close-sidebar" class="absolute right-4 text-white font-bold text-3xl">&times;</button>
+      </div>
+      <ul id="category-list" class="space-y-2">
+        {% for category in categories %}
+          <li>
+            <h3 class="font-semibold text-white">{{ category.category_name }}</h3>
+            <ul class="ml-4 text-sm text-gray-400">
+              {% for item in category.materials %}
+                <li>{{ item.name }} (Stock: {{ item.stock_level }}{{item.unit}})</li>
+              {% endfor %}
+            </ul>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <!-- Inventory Category -->
+  <div>
+    <label for="category" class="block text-sm font-semibold text-gray-700">
+      <i class="fas fa-layer-group mr-1 text-green-600"></i> Category: <span class="text-red-500">*</span>
+    </label>
+    <div class="relative">
+      <input type="text" id="category" name="category" placeholder="Select or type a category"
+             class="w-full mt-1 p-3 border rounded-lg focus:ring-green-500 focus:border-green-500" autocomplete="off" required>
+      {% if form.category.errors %}
+          <div class="error text-red-500">
+              {% for error in form.category.errors %}
+                  <p>{{ error }}</p>
+              {% endfor %}
+          </div>
+      {% endif %}
+      <div id="category-dropdown" 
+           class="absolute mt-1 w-full max-h-48 overflow-y-auto border border-gray-300 bg-white shadow rounded hidden z-20">
+        <!-- Dropdown items dynamically populated -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Materials Row -->
+  <div class="flex flex-col justify-between mt-4">
+    <div class="flex">
+      <div class="flex-1 flex items-center">
+        <label for="name" class="gap-[7px] flex items-center text-sm font-semibold text-gray-700">
+          <i class="fas fa-box mr-1 text-green-600"></i> Material/Product Name: <span class="text-red-500">*</span>
+        </label>
+      </div>
+      <div class="basis-[20%] flex items-center">
+        <label for="stock_level" class="flex gap-[5px] items-center text-sm font-semibold text-gray-700">
+          <i class="fas fa-warehouse mr-1 text-green-600"></i> <span>Stock Level: <span class="text-red-500">*</span></span>
+        </label>
+      </div>
+      <div class="basis-1/6">
+        <label for="reorder_threshold" class="flex gap-[5px] items-center text-sm font-semibold text-gray-700">
+          <i class="fas fa-bell mr-1 text-green-600"></i> <span>Reorder Threshold: <span class="text-red-500">*</span></span>
+        </label>
+      </div>
+    </div>
+    <div class="flex gap-1 item relative">
+      <div class="flex-1">
+        <input type="text" id="name" name="name" 
+              class="w-full mt-1 p-3 border rounded-lg focus:ring-green-500 focus:border-green-500"
+              placeholder="Enter material or product name" required>
+      </div>
+      <div class="basis-[20%] relative z-0 flex gap-1">
+        <input type="number" id="stock_level" name="stock_level" 
+              class="relative w-[10px] flex-1 mt-1 py-3 pl-3 pr-0 border rounded-lg focus:ring-green-500 focus:border-green-500 z-0" 
+              min="0" placeholder="0" required>
+        <input id="unit-display" name="unit_of_measurement" class="border-none w-[50px] text-gray-500 whitespace-nowrap hidden px-0 pt-4 pointer-events-none" tabindex="-1" readonly value="">
+        <select id="unit-select" name="unit_of_measurement" class="hidden bg-white bg-[right_-5px_center] px-1 border-b border-x-0 border-t-0 focus:ring-0 focus:border-none text-sm">
+          <!-- Units will be dynamically populated -->
+        </select>
+      </div>
+       
+      <div class="basis-1/6">
+        <input type="number" id="reorder_threshold" name="reorder_threshold" 
+              class="w-full mt-1 p-3 border rounded-lg focus:ring-green-500 focus:border-green-500" min="1" placeholder="1" required>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supplier -->
+  <div class="mt-4">
+    <label for="supplier" class="block font-semibold text-gray-700">
+      <i class="fas fa-user-tie mr-1 text-green-600"></i> Supplier:
+    </label>
+    <input type="text" id="supplier" name="supplier" class="w-full mt-1 p-3 border rounded-lg focus:ring-green-500 focus:border-green-500" 
+        placeholder="Enter the producer/supplier name (optional).">
+  </div>
+
+  <!-- Buttons -->
+  <div class="flex justify-end mt-6">
+    <button type="submit" 
+            class="px-6 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500">
+      <i class="fas fa-save mr-1"></i> Submit
+    </button>
+    <button type="button" id="open-sidebar" 
+            class="ml-4 px-6 py-2 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-700 focus:ring-2 focus:ring-yellow-500">
+      <i class="fas fa-list-alt mr-1"></i> View Inventory
+    </button>
+  </div>
+</div>
+
+<script>
+  $(document).ready(function () {
+    // Predefined data for categories
+    const predefinedCategories = [
+      { name: "Ink", unit: "liters" },          // Liters
+      { name: "Textiles", unit: "meters" },     // Meters
+      { name: "Vinyl", unit: "rolls" },    // Rolls
+      { name: "Paper", unit: "sheets" },   // Sheets
+      { name: "Adhesives", unit: "kg" },   // Kilograms
+      { name: "Fabrics", unit: "meters" },      // Meters
+      { name: "Paint", unit: "liters" },        // Liters
+      { name: "Glass", unit: "pcs" },      // Pieces
+      { name: "Wood", unit: "cm" },        // Centimeters
+      { name: "Steel", unit: "kg" },       // Kilograms
+      { name: "Other", unit: null },       // Other
+    ];
+
+    // Available units for the dropdown
+    const availableUnits = ["qty", "liters", "meters", "cm", "mm", "kg", "grams", "pcs", "rolls", "sheets"];
+
+    const inputField = document.getElementById('category');
+    const dropdown = document.getElementById('category-dropdown');
+    const sidebar = document.getElementById('inventory-sidebar');
+    const openSidebar = document.getElementById('open-sidebar');
+    const closeSidebar = document.getElementById('close-sidebar');
+    const unitDisplay = document.getElementById('unit-display');
+    const unitSelect = document.getElementById('unit-select');
+
+    // Populate dropdown with predefined categories
+    inputField.addEventListener('focus', function () {
+      dropdown.innerHTML = '';
+      predefinedCategories.forEach(category => {
+        const item = document.createElement('div');
+        item.textContent = category.name;
+        item.className = 'p-2 cursor-pointer hover:bg-gray-100';
+        item.addEventListener('click', function () {
+          inputField.value = category.name;
+          dropdown.classList.add('hidden');
+
+          // Display unit or dropdown based on category
+          if (category.unit) {
+            unitDisplay.value = category.unit;
+            unitDisplay.classList.remove('hidden');
+            unitSelect.classList.add('hidden');
+          } else {
+            unitDisplay.classList.add('hidden');
+            unitSelect.classList.remove('hidden');
+
+            // Populate the unit dropdown for "Other"
+            unitSelect.innerHTML = '';
+            availableUnits.forEach(unit => {
+              const option = document.createElement('option');
+              option.value = unit;
+              option.textContent = unit;
+              unitSelect.appendChild(option);
+            });
+          }
+        });
+        dropdown.appendChild(item);
+      });
+      dropdown.classList.remove('hidden');
+    });
+
+    // Hide dropdown on blur
+    inputField.addEventListener('blur', function () {
+      setTimeout(() => dropdown.classList.add('hidden'), 250);
+    });
+
+    // Sidebar toggling
+    openSidebar.addEventListener('click', () => sidebar.classList.remove('hidden'));
+    closeSidebar.addEventListener('click', () => sidebar.classList.add('hidden'));
+
+    // Handle manual input for categories
+    inputField.addEventListener('input', () => {
+      const category = predefinedCategories.find(cat => cat.name === inputField.value);
+
+      if (category) {
+        if (category.unit) {
+          unitDisplay.value = category.unit;
+          unitDisplay.classList.remove('hidden');
+          unitSelect.classList.add('hidden');
+        } else {
+          unitDisplay.classList.add('hidden');
+          unitSelect.classList.remove('hidden');
+
+          // Populate the unit dropdown for manual entry or "Other"
+          unitSelect.innerHTML = '';
+          availableUnits.forEach(unit => {
+            const option = document.createElement('option');
+            option.value = unit;
+            option.textContent = unit;
+            unitSelect.appendChild(option);
+          });
+        }
+      } else {
+        unitDisplay.classList.add('hidden');
+        unitSelect.classList.add('hidden');
+      }
+    });
+  });
+</script>
+{% endblock %}
+
+{% block messages %}
+  {% if messages %}
+  <div 
+    id="success-message" 
+    class="absolute bottom-6 left-10 z-50 px-4 py-2 text-green-800 bg-green-200 border border-green-300 rounded shadow-lg">
+    {% for message in messages %}
+      {{ message }}
+    {% endfor %}
+  </div>
+  {% endif %}
+  <script>
+    // Fade out the success message after 3 seconds
+    document.addEventListener('DOMContentLoaded', function () {
+      const successMessage = document.getElementById('success-message');
+      if (successMessage) {
+        setTimeout(() => {
+          successMessage.style.transition = 'opacity 0.5s ease';
+          successMessage.style.opacity = '0';
+          setTimeout(() => successMessage.remove(), 500); // Remove after fade-out
+        }, 3000); // 3 seconds delay before starting fade-out
+      }
+    });
+  </script>
+{% endblock messages %}

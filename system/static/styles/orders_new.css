@@ -1,0 +1,72 @@
+details[open]{
+  border-bottom: 2px dashed;
+  padding-bottom: 8px;
+}
+
+/* Add smooth transition styles */
+details[open] summary ~ * {
+  animation: slideDown 0.3s ease-out;
+}
+
+details[open] summary > i.down{
+  transform: scaleY(-1);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#customer-form.transition summary {
+  transition: border-bottom-color 0.3s ease;
+}
+
+
+.tab-link {
+    color: black;
+    cursor: pointer;
+    padding: 5px 15px;
+    text-align: center;
+}
+/* Active tab styling */
+.tab-link.active {
+    border-bottom: 3px solid darkgreen;
+}
+.tab-pane:not(.order-tab-content) {
+    display: none;
+}
+.tab-pane.active:not(.order-tab-content) {
+    display: block;
+}
+.checkbox:checked + .checkmark {
+  background-color: #4caf50; /* Green when checked */
+  border-color: #4caf50;
+}
+
+.checkbox:checked + .checkmark::after {
+  content: '';
+  display: block;
+  width: 10px;
+  height: 10px;
+  background-color: white;
+  border-radius: 2px;
+  transform: scale(1);
+  transition: transform 0.3s ease;
+}
+
+.checkmark::after {
+  content: '';
+  display: block;
+  width: 10px;
+  height: 10px;
+  background-color: white;
+  border-radius: 2px;
+  transform: scale(0);
+  transition: transform 0.3s ease;
+}

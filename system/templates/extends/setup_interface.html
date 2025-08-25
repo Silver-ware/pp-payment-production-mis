@@ -1,0 +1,140 @@
+{% load static tailwind_tags %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    {% tailwind_css %}
+    <script src="{% static 'jquery/jquery-3.7.1.min.js' %}"></script>
+    <script src="{% static 'jquery/jquery-ui.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.10.0/gsap.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
+    {% block scripts %}
+    {% endblock %}
+  </head>
+  <body class="bg-gray-100 h-screen">
+    {% block fixed_modal %}{% endblock fixed_modal %}
+    <div class="h-full flex items-center justify-center pb-10 overflow-hidden">
+      <div id="slide" class="bg-white shadow-lg rounded-lg flex w-5/6 max-w-5xl h-[85%] relative opacity-0">
+          <!-- Left Section -->
+          {% block left_section_var %}
+          <script>
+            window.addEventListener('load', function() {
+              var panelId = "{{ panel_id|default:'' }}";
+              if (panelId) {
+                var panelElement = document.getElementById(panelId);
+                
+                // Check if the element with the panelId exists
+                if (panelElement) {
+                  panelElement.addEventListener('submit', function() {
+                    console.log("panel Submitted");
+                    // Set the sessionStorage flag when this specific panel is submitted
+                    sessionStorage.setItem('formSubmitted', 'true');
+                    sessionStorage.setItem('isFormSubmitted', 'true');
+                  });
+                } else {
+                  console.log("panel with ID " + panelId + " not found.");
+                }
+              } else {
+                console.log("panel ID is not provided.");
+              }
+
+              const slideDiv = document.getElementById('slide');
+    
+            // Check if the form was submitted (using sessionStorage)
+            if (!sessionStorage.getItem('formSubmitted')) {
+              console.log("Slide");
+              // Use GSAP to animate the slide-in effect
+              gsap.fromTo(slideDiv, {
+                x: '100%',  // Start from the right
+                opacity: 0  // Start from invisible
+              }, {
+                x: '0%',  // Slide to the center (normal position)
+                opacity: 1,  // Make the div visible
+                duration: 1,  // Duration of the animation (1 second)
+                ease: 'power2.out',  // Easing for smooth animation
+              });
+            } else{
+              slideDiv.style.opacity = "1";
+            }
+
+            window.addEventListener('beforeunload', function() {
+              // Clear the session storage only if the page is not reloading after form submission
+              if (!sessionStorage.getItem('isFormSubmitted')) {
+                sessionStorage.removeItem('formSubmitted');
+                console.log("Form Cause");
+              }
+
+              // Reset the custom flag after the page unload
+              sessionStorage.removeItem('isFormSubmitted');
+            });
+  
+              const leftSection = document.getElementById('left-section');
+          
+              // Define two gradient states
+              const gradient1 = '{{prev_background}}';
+              const gradient2 = '{{next_background}}';
+          
+              // Set initial gradient
+              leftSection.style.background = gradient1;
+          
+              // Use GSAP to animate the gradient morphing
+              gsap.to(leftSection, {
+                duration: 2,  // Duration of the transition (2 seconds)
+                backgroundImage: gradient2,  // Target gradient
+                ease: 'power1.inOut',  // Easing function
+                repeat: -1,  // Repeat the effect
+                yoyo: true,  // Make the effect reverse (morph back to the original gradient)
+              });
+            });
+          </script>
+          
+          <div id="left-section" class="w-1/3 text-white p-8 flex flex-col justify-between">
+              <div>
+                  <h1 class="text-3xl font-bold mb-6">{% block section_title %} {% endblock %}</h1>
+                  <p class="text-sm">
+                      {% block section_des %} {% endblock %}
+                  </p>
+              </div>
+              <div>
+                  <img src="https://via.placeholder.com/300x200" alt="Setup Illustration" class="rounded-lg mt-8">
+              </div>
+          </div>
+          {% endblock left_section_var %}
+          
+          {% block form_block%} 
+            <!-- Right Section (Form) -->
+            <div class="w-2/3 overflow-y-scroll pb-5 flex flex-col relative">
+                <div class="pt-5 sticky bg-white top-0 w-full px-9 box-border z-20">
+                  <h1 class=" text-gray-700 font-semibold text-2xl w-full border-b pb-2"> {% block form_heading %} {% endblock %}</h1>
+                </div>
+                
+                <form id="{{form_id}}" action="" method="POST" enctype="multipart/form-data" class="mx-10 space-y-6 h-max mb-4">
+                    {% csrf_token %}
+                    {% block form_fields %}
+                    {% endblock %}
+                </form>
+                {% if other_form %}
+                  {% block second_form %}
+                  {% endblock second_form %}
+                {% endif %}
+                {% block messages %}
+                {% endblock messages %}
+            </div>
+            <div class="absolute -bottom-12 right-2">
+              {% include 'setup/partials/setup_navbtn.html' %}
+            </div>
+          {% endblock %}
+          <style>
+            .input:focus-within div > *:not(span){
+              transform: scale(1.2); /* Slightly enlarge the icon */
+            }
+        </style>
+      </div>
+    </div>
+  </body>  
+</html>

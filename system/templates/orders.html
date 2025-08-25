@@ -1,0 +1,102 @@
+{% extends 'extends/main_interface.html' %}\
+{% load static %}
+
+{% block head_block %}
+    <link rel="stylesheet" href="{% static 'styles/orders_new.css' %}">
+{% endblock head_block %}
+
+{% block title %} Orders {% endblock title %} Orders 
+
+{% block aside_var %}
+    {% with order_active=True %}
+        {{block.super}}
+    {% endwith %}
+{% endblock aside_var %}
+
+{% block content %}
+<div class="flex-1 flex flex-col pt-4 bg-gray-50 rounded-lg shadow-md overflow-y-hidden">
+    <!-- Page Header -->
+    <div class="px-6 flex justify-between w-full pb-1 mb-3 border-b">
+        <h1 class="text-2xl font-semibold"><i class="fas fa-clipboard-list text-green-700"></i> Order / Jobs Manager</h1>
+        <span class="font-bold italic text-lg text-black">{{ current_date }}</span>
+    </div>
+
+    <div class="flex-1 flex overflow-y-hidden">
+        <!-- Left Section -->
+        <div class="w-1/3 pr-2 border-r flex flex-col border-green-500 overflow-y-scroll scrollbar-thin scrollbar-thumb-green-500 scrollbar-track-gray-300">
+            <div class="sticky top-0 bg-gray-50 z-10">
+                <div class="w-[80%] ml-4 flex gap-4 border-b border-green-500">
+                    <button class="order-tab tab-btn pb-2 border-b-4 border-green-500 flex items-center gap-2 transition-all duration-300 ease-in-out" data-tab="order-queue">
+                        <i class="fas fa-list text-green-700"></i> 
+                        <span class="tab-label">Order Queue</span>
+                    </button>
+                    <button class="order-tab tab-btn pb-2 flex items-center gap-2 transition-all duration-300 ease-in-out" data-tab="completed-orders">
+                        <i class="fas fa-archive text-green-700"></i> 
+                        <span class="tab-label hidden">Completed Orders</span>
+                    </button>
+                    <button class="order-tab tab-btn pb-2 flex items-center gap-2 transition-all duration-300 ease-in-out" data-tab="order-search">
+                        <i class="fas fa-search text-green-700"></i> 
+                        <span class="tab-label hidden">Order Search</span>
+                    </button>
+                </div>
+            </div>            
+    
+            <!-- Content for Order Queue -->
+            <div id="order-queue" class="flex-1 order-tab-content tab-pane flex flex-col justify-between w-full pl-6 relative">
+                {% include 'includes/orders_queue.html' %}
+            </div>
+  
+            <!-- Content for Completed Orders -->
+            <div id="completed-orders" class="flex-1 order-tab-content tab-pane pl-6 hidden">
+                {% include 'includes/orders_completed.html' %}
+            </div>
+    
+            <!-- Content for Order Search -->
+            <div id="order-search" class="order-tab-content tab-pane pl-6 hidden">
+                {% include 'includes/orders_search.html' %}
+            </div>
+        </div>
+
+        <div class="flex-1 pb-2 pl-6 pr-4 overflow-y-scroll scrollbar-thin scrollbar-thumb-green-500 scrollbar-track-gray-300">
+            <div class="sticky top-0 bg-gray-50 border-b border-green-500 mb-4 z-20">
+                <button class="border-b-4 border-green-500 pb-2">
+                    <i class="fas fa-cart-plus text-green-700"></i> New Order
+                </button>
+            </div>
+            {% include 'includes/orders_new.html' %}
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        const $tabs = $('.order-tab.tab-btn');
+        const $panes = $('.order-tab-content.tab-pane');
+
+        $tabs.each(function (index) {
+            const $btn = $(this);
+
+            // Set the first tab as active by default
+            if (index === 0) {
+                $btn.addClass('border-b-4 border-green-500 font-semibold');
+                $btn.find('.tab-label').removeClass('hidden');
+            }
+
+            $btn.on('click', function () {
+                // Deactivate all tabs
+                $tabs.removeClass('border-b-4 border-green-500');
+                $tabs.find('.tab-label').addClass('hidden');
+
+                // Activate the clicked tab
+                $btn.addClass('border-b-4 border-green-500 font-semibold');
+                $btn.find('.tab-label').removeClass('hidden');
+
+                // Hide all tab panes
+                $panes.addClass('hidden');
+
+                // Show the corresponding tab pane
+                $('#' + $btn.data('tab')).removeClass('hidden');
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% if results %}
+    <ul class="divide-y divide-green-200">
+        {% for job in results %}
+        <li class="p-4">
+            <div class="flex justify-between items-center">
+                <span class="font-bold text-green-700">{{ job.job_id }}</span>
+                <span>{{ job.status }}</span>
+            </div>
+            <p class="text-sm text-gray-600">{{ job.details }}</p>
+        </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p class="text-gray-500 text-center">No results found.</p>
+{% endif %}

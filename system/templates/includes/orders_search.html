@@ -1,0 +1,48 @@
+<!-- Order Search Content -->
+<div class="relative pt-2">
+  <div class="mb-4">
+      <label for="search-input" class="block text-lg font-medium text-gray-700">Search Orders</label>
+      <div class="relative mt-1">
+            {% csrf_token %}
+          <input id="search-input" type="text" placeholder="Search by service, customer name, or status..." 
+              class="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-1 focus:ring-green-600 focus:border-green-600">
+          <i class="fas fa-search absolute top-3 right-4 text-green-800"></i>
+      </div>
+  </div>
+
+  <!-- Search Results -->
+  <div id="search-results" class="space-y-2 pb-4">
+      <!-- Results will be dynamically injected here -->
+  </div>
+</div>
+
+
+<script>
+  $(document).ready(function () {
+    const $searchInput = $('#search-input');
+    const $searchResults = $('#search-results');
+
+    $searchInput.on('input', function () {
+        const query = $searchInput.val().trim();
+
+        if (query.length > 0) {
+            $.ajax({
+                url: `/orders/search/`,
+                type: 'GET',
+                data: { query: query },
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                success: function (data) {
+                    $searchResults.html(data.html);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching search results:', error);
+                }
+            });
+        } else {
+            $searchResults.html(''); // Clear results if input is empty
+        }
+    });
+  });
+</script>

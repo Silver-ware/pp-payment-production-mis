@@ -1,0 +1,108 @@
+{% load static %}
+
+<div class="quality-control-content border-x-2 border-dashed border-green-600 px-4 py-6 flex items-center justify-center flex-col h-full">
+    <h3 class="text-lg font-semibold text-green-700">Quality Control</h3>
+    <p class="mt-4">Review flagged orders that require quality checks or revisions.</p>
+
+    <form id="quality-control-form" class="mt-4 w-full hidden">
+        <input type="number" name="job-id" hidden>
+        <div class="flex items-center mb-2">
+            <i class="fas fa-cog mr-2"></i>
+            <label for="parameter" class="font-semibold">Parameter:</label>
+        </div>
+        <div>
+            <input type="text" id="parameter" name="parameter" class="border border-gray-300 rounded-md p-2 w-full focus:ring-green-600 focus:border-green-600" required>
+        </div>
+    
+        <div class="flex items-center mt-2">
+            <i class="fas fa-check-circle mr-2"></i>
+            <label for="result" class="font-semibold">Result:</label>
+        </div>
+        <div>
+            <select id="result" name="result" class="border border-gray-300 rounded-md p-2 w-full focus:ring-green-600 focus:border-green-600">
+                <option value="on_progress" selected>On Progress</option>
+                <option value="pass">Pass</option>
+                <option value="fail">Fail</option>
+            </select>
+        </div>
+    
+        <div class="flex items-center mt-2">
+            <i class="fas fa-sticky-note mr-2"></i>
+            <label for="notes" class="font-semibold">Notes:</label>
+        </div>
+        <div>
+            <textarea id="notes" name="notes" class="border border-gray-300 rounded-md p-2 w-full" focus:ring-green-600 focus:border-green-600 rows="3"></textarea>
+        </div>
+    
+        <button type="submit" class="mt-4 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded w-full">
+            <i class="fas fa-save mr-2"></i> Save
+        </button>
+    </form>
+
+    <div id="no-quality-checks-message" class="flex-1 flex flex-col items-center justify-start pt-[5%] gap-2 mt-4 text-gray-500">
+        <span class="text-3xl font-semibold text-center"> No Production Quality Checks is Selected. </span>
+        <img src="{% static 'icons/no_production.png'%}" class="w-20 h-20 opacity-80"/> 
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        function displayMessageOverlay(operation_state, message, operation_name, name_color) {
+            //console.log("display");
+            const backgroundColor = operation_state === 'allowed' ? 'bg-green-500' : 'bg-red-900';
+            let operationColor = name_color == 0 ? 'text-green-400' : name_color == 1 ? 'text-red-700': 'text-yellow-400';
+        
+            const overlay = $(`<div class="fixed top-0 left-0 right-0 ${backgroundColor} text-white text-center p-3 z-50 transition-transform transform -translate-y-full" id="message-overlay"></div>`);
+            overlay.append(message + ` <span class="font-semibold ${operationColor}"> ${operation_name}</span>`);
+        
+            // Append the overlay to the body
+            $('body').append(overlay);
+        
+            // Small delay before showing the overlay
+            setTimeout(function() {
+                overlay.removeClass('-translate-y-full').addClass('translate-y-0');
+            }, 100);
+        
+            // Hide the overlay after 3 seconds
+            setTimeout(function() {
+                overlay.removeClass('translate-y-0').addClass('-translate-y-full');
+                setTimeout(function() {
+                    overlay.remove();
+                }, 500); // Remove the overlay after the sliding animation
+            }, 3000); // Show the message for 3 seconds
+        }
+        $('#quality-control-form').submit(function(event) {
+            event.preventDefault();
+            const formData = $(this).serialize();
+            const jobID = $('input[name="job-id"]').val();
+            const parameter = $('#parameter').val(); 
+
+            const csrfToken = $('meta[name="csrf-token"]').attr('content');
+        
+            $.ajax({
+                url: `/save_quality_check/${jobID}/${parameter}/`, // Define your Django URL
+                method: 'POST',
+                data: formData,
+                beforeSend: function (xhr) {
+                    // Set CSRF token in request header
+                    xhr.setRequestHeader('X-CSRFToken', csrfToken);
+                },
+                success: function(response) {
+                    saveType = response.save_type;
+                    displayMessageOverlay(
+                        'allowed',
+                        saveType + ' the ',
+                        'Production ID: ' + jobID + ' - ' + parameter + "." ,
+                    );
+                    updateProgressBar(response.quality_checks, response.job_id);
+                    $('#quality-control-form')[0].reset()
+                    $('#quality-control-form').addClass('hidden');
+                    $('#no-quality-checks-message').removeClass('hidden');
+                },
+                error: function() {
+                    console.log(response.error);
+                }
+            });
+        });
+    });
+</script>

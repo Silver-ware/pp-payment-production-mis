@@ -1,0 +1,186 @@
+{% extends 'extends/setup_interface.html' %}
+
+{% block title %}
+  List of Services and Pricing
+{% endblock %}
+
+{% block scripts %}
+<script>
+  $(document).ready(function () {
+    let tagify; // Declare Tagify variable globally to manage its state
+    const customizationInputSelector = "#customization_options";
+
+    // Function to initialize or reinitialize Tagify
+    function initializeTagify() {
+        const customizationInput = document.querySelector(customizationInputSelector);
+
+        if (customizationInput) {
+            // Destroy existing Tagify instance, if any
+            if (tagify) {
+                console.log("Destroying existing Tagify instance...");
+                tagify.destroy();
+                tagify = null;
+            }
+
+            // Create a new Tagify instance
+            console.log("Initializing new Tagify instance...");
+            tagify = new Tagify(customizationInput, {
+                enforceWhitelist: false,
+            });
+            
+        }
+    }
+
+    // Initialize Tagify on page load
+    initializeTagify();
+    
+    function serializeTagifyData(tagifyInstance) {
+      // Get the tag values and serialize them as a list of strings
+      const tagValues = tagifyInstance.value.map(tag => tag.value);
+      return JSON.stringify(tagValues);  // Return as a stringified list
+    }
+
+    function getCSRFToken() {
+      return document.querySelector('[name=csrfmiddlewaretoken]').value;
+    }
+
+    $('button[name="save_service"]').on('click', function () {
+      const serviceNameInput = $('#name');
+      if (serviceNameInput.val().trim() === '') {
+          // Remove the 'required' attribute if the service name input is empty
+          const customizationInput = $('#customization_options');
+          serviceNameInput.removeAttr('required');
+          customizationInput.removeAttr('required');
+      }
+    });
+
+    // AJAX Form Submission Handling
+    $('form').off('submit').on('submit', function (event) {
+        event.preventDefault();
+        const customizationInput = document.querySelector("#customization_options");
+
+        if (customizationInput && tagify) {
+            // Serialize tagify data before submitting
+            customizationInput.value = serializeTagifyData(tagify);
+        }
+        // Create the form data
+        var form = $(this);
+        var formData = form.serialize();  // Serialize the form data
+
+        // Handle button-specific data (e.g., add_pricing_option)
+        var buttonName = event.originalEvent.submitter.name;
+        console.log("Button Name Pressed: " + buttonName);
+        formData += '&' + buttonName + '=1';  // Append the submitter button name to the form data
+
+        console.log("Submitting form via AJAX with data:", formData);
+        
+        $.ajax({
+            type: 'POST',
+            url: '',
+            headers: { 'X-CSRFToken': getCSRFToken() },
+            data: formData,
+            success: function (response) {
+                if (response.status === 'success') {
+                    if (response.add_service) {
+                        // Replace the form section and reinitialize Tagify
+                        $('#service-input-section').replaceWith(response.service_form_html);
+                        initializeTagify();
+
+                        if (response.success_message) {
+                          const messagesDiv = $('#messages');
+                          console.log(messagesDiv);
+                          const alert = $('<div>')
+                            .addClass('alert mx-10 px-4 py-2 text-green-800 bg-green-200 border border-green-300 rounded shadow-lg')
+                              .text(response.success_message);
+                          messagesDiv.append(alert);
+          
+                          // Automatically fade out the message after 5 seconds
+                          setTimeout(() => alert.fadeOut(), 5000);
+                      }
+                    }
+                    if (response.confirm_services) {
+                        console.log("Confirm Services btn");
+                        $('#service-input-section').addClass('hidden');
+                        $('#service-tabs').replaceWith(response.service_tabs_html);
+                        const csrfToken = getCSRFToken(); // Assuming getCSRFToken fetches the token from the meta tag
+                        $('form').each(function () {
+                            if (!$(this).find('[name=csrfmiddlewaretoken]').length) {
+                                $(this).prepend(`<input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">`);
+                            }
+                        });
+                        $('#service-tabs').removeClass('hidden');
+                    }
+                } else if (response.status === 'error') {
+                  console.log("Erorr ajax operation");
+                    if (response.service_form_html) {
+                        // Replace the form section and reinitialize Tagify
+                        $('#service-input-section').replaceWith(response.service_form_html);
+                        initializeTagify();
+                    }
+                }
+            },
+            error: function () {
+                alert('Error processing the request.');
+            }
+        });
+    });
+  });    
+</script>
+{% endblock %}
+
+{% block section_title %}
+  SERVICES & PRICING
+{% endblock %}
+
+{% block section_des %}
+  List all your services/products you offer and add it's designated price.
+  Fill in the necessary details to add Service. <br>
+  Fields marked with <span class="text-red-500 font-bold">*</span> are required.
+{% endblock %}
+
+{% block form_heading %} Add General Service Details {% endblock %}
+
+{% comment %} Setting variables that the parent utilize  {% endcomment %}
+{% block left_section_var %}
+  {% with prev_background="linear-gradient(45deg, #16a34a, #4b5563)" next_background="linear-gradient(45deg, #2d6a4f, #d97706)" %}
+    {{block.super}}
+  {% endwith %}
+{% endblock left_section_var %}
+{% block form_block%}
+  {% with form_id="service_form" other_form=True next_url='equipment' prev=True prev_url='business_details'%}
+    {{block.super}} 
+  {% endwith %}
+{% endblock %}
+
+{% block form_fields %}
+  <script>
+  </script>
+  {% include 'setup/partials/service_form.html' %}
+  <style>
+      /* Customize the input field inside Tagify */
+    .tagify{
+      padding-left: 35px;             /* Add padding for better spacing */
+      border: 1px solid #6b7280;   /* Subtle border */
+      outline: none;            /* Remove focus outline */
+    }
+    .tagify:has(.tagify__input:focus) {
+      border: 1px solid #22c55e;
+      box-shadow: 0 0 0 1px rgba(34, 197, 94);
+    }
+  </style>
+{% endblock %}
+
+{% block second_form %}
+  <div id="service-tabs" class="hidden mt-10">
+  </div>
+{% endblock second_form %}
+
+{% block messages %}
+  <div id="messages">
+  </div>  
+{% endblock messages %}
+
+
+
+  
+                  

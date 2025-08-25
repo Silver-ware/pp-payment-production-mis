@@ -1,0 +1,574 @@
+<div class="pr-2 pb-16">
+  <form id="new-order-form" action="" method="POST">
+      {% csrf_token %}
+      
+      <input type="hidden" name="name" id="name">
+      
+      <!-- Customer Data Section -->
+      <details id="customer-form" class="border-green-800">
+        <summary class="list-none border-b-2 pb-1 border-green-600 pl-1 pr-2 w-max font-semibold cursor-pointer">
+            <i class="fas fa-user text-green-700"></i> Customer Data <i class="fas fa-chevron-down down"></i>
+        </summary> 
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 mt-4">
+            <!-- First Column (Name Fields) -->
+            <div class="space-y-4">
+                <div>
+                    <label for="customer_surname" class="m-1 block text-sm font-medium">
+                         Surname/Org.: 
+                    </label>
+                    <input type="text" name="customer_surname" id="customer_surname"
+                      required class="w-full rounded-md shadow-sm border-gray-300 focus:ring-green-500 focus:border-green-500"
+                      placeholder="If an organization input only here.">
+                </div>
+                <div>
+                    <label for="customer_firstname" class="m-1 block text-sm font-medium">
+                        First Name: 
+                    </label>
+                    <input type="text" name="customer_firstname" id="customer_firstname" 
+                      required class="w-full rounded-md shadow-sm border-gray-300 focus:ring-green-500 focus:border-green-500">
+                </div>
+                <div>
+                    <label for="customer_middleinitial" class="m-1 block text-sm font-medium">
+                        Middle Initial: 
+                    </label>
+                    <input type="text" name="customer_middleinitial" id="customer_middleinitial" class="w-full rounded-md shadow-sm border-gray-300 focus:ring-green-500 focus:border-green-500">
+                </div>
+            </div>
+            
+            <!-- Second Column (Contact Fields) -->
+            <div class="space-y-4">
+                <div>
+                    <label for="customer_contact" class="m-1 block text-sm font-medium">
+                        Contact Information: 
+                    </label>
+                    <div class="relative">
+                        <i class="fas fa-phone-alt absolute left-3 top-3 text-green-700"></i>
+                        <input type="text" name="contact_number" id="customer_contact"
+                          required class="pl-10 w-full rounded-md shadow-sm border-gray-300 focus:ring-green-500 focus:border-green-500">
+                    </div>
+                </div>
+                <div>
+                    <label for="customer_email" class="m-1 block text-sm font-medium">
+                        Email: 
+                    </label>
+                    <div class="relative">
+                        <i class="fas fa-envelope absolute left-3 top-3 text-green-700"></i>
+                        <input type="email" name="email" id="customer_email"
+                          required class="pl-10 w-full rounded-md shadow-sm border-gray-300 focus:ring-green-500 focus:border-green-500">
+                    </div>
+                </div>
+                <div>
+                    <label for="customer_address" class="m-1 block text-sm font-medium">
+                        Address: 
+                    </label>
+                    <div class="relative">
+                        <i class="fas fa-map-marker-alt absolute left-3 top-3 text-green-700"></i>
+                        <input type="text" name="address" id="customer_address"
+                          class="pl-10 w-full rounded-md shadow-sm border-gray-300 focus:ring-green-500 focus:border-green-500">
+                    </div>
+                </div>
+            </div>
+        </div>
+      </details>
+      {% if customer %}
+        <select name="fullname" id="existing-customer"
+            class="mt-2 rounded-md shadow-sm border-gray-300 focus:ring-green-500 focus:border-green-500 scrollbar-thin scrollbar-thumb-green-500 scrollbar-track-gray-300">
+            <option value="" selected disabled> Select an existing customer </option>
+            {% for customer in customer %}
+                <option value="{{customer.customer_id}}">{{customer.name}}</option>
+            {% endfor %}
+        </select>
+      {% endif %}
+
+      <!-- Service and Customizations -->
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 mt-4">
+          <div>
+              <label for="service" class="m-1 block text-sm font-medium"><i class="fas fa-briefcase text-green-700"></i> Service: </label>
+              <select name="service" id="service" required class="w-full rounded-md shadow-sm border-gray-300 focus:ring-green-500 focus:border-green-500
+                    scrollbar-thin scrollbar-thumb-green-500 scrollbar-track-gray-300">
+                    <option value="" selected disabled>Select Service</option>
+                    {% for service in services|dictsort:"name" %}
+                    <option value="{{ service.service_id }}">{{ service.name }}</option>
+                    {% endfor %}
+              </select>
+          </div>
+          <div class="relative">
+              <span id="customizationOptionsLabel" class="relative m-1 block text-sm font-medium border-b border-green-600 pb-1 pr-2 border-dashed w-max"><i class="fas fa-sliders-h text-green-700"></i> Customization Options: 
+                <div id="popoverMessage" 
+                class="hidden absolute right-[-100%] top-0 bg-green-100 border border-green-500 text-green-700 px-3 rounded shadow-lg">
+                    Check/Unchecked all.
+                </div>
+              </span>
+              
+              <!-- Highlighted Change: Customization options as a checklist -->
+              <div id="customizationOptions" class="gap-2 flex-wrap flex items-start justify-start">
+                  <!-- Dynamic checklist will be appended here -->
+              </div>
+          </div>
+      </div>
+
+      <input type="hidden" id="jobSpecificationsJson" name="job_specifications" value="">
+      <div class="flex gap-3 ">
+        <!-- Specifications (This will be replaced by Tabs) -->
+        <div class="flex-1 mt-4 border-r border-green-700 pr-2 pb-2" id="customizationTabsContainer">
+          <span for="job_specifications" class="block text-sm font-medium"><i class="fas fa-tasks text-green-700"></i>  Job Specifications: </span>
+          <div class="tabs-container flex items-start space-x-2 border-green-900 h-max">
+              <!-- Tabs -->
+              <div id="customTabs" class="flex flex-row border-b border-b-green-800 w-full">
+                  <!-- Default custom tab should be here by default -->
+                  <div class="tab-link active" data-tab="custom-tab">Custom</div>
+              </div>
+          </div>
+          <!-- Tab Content -->
+          <div class="tab-content pt-1 pb-2 border-b border-dashed border-green-800">
+            <div class="tab-pane active" id="custom-tab">
+              <div id="customInputContainer" class="">
+                  <!-- First Row -->
+                  <div class="flex items-center space-x-4 px-2">
+                      <input type="text" class="px-2 py-1 custom-input w-1/4 focus:ring-0 focus:border-green-600 focus:border-b border-0 bg-gray-50" placeholder="Name" />
+                      <span class="text-lg font-bold">:</span>
+                      <input type="text" class="px-2 py-1 custom-input w-3/4 focus:ring-0 focus:border-green-600 focus:border-b border-0 bg-gray-50" placeholder="Details" />
+                  </div>
+              </div>
+            </div>
+          </div>
+      </div>
+
+
+      <!-- Deadline -->
+      <div class="basis-[10%] mt-4">
+        <label for="deadline" class="mt-6 mb-4 block text-sm font-medium">Deadline: </label>
+        <div class="mt-2 relative">
+            <i class="fas fa-calendar-alt absolute left-3 top-3 text-green-700"></i>
+            <input type="date" name="deadline" id="deadline" required class="pl-10 w-full rounded-md shadow-sm border-gray-300 focus:ring-green-500 focus:border-green-500">
+        </div>
+      </div>
+    </div>
+    
+    <!-- Submit -->
+    <div class="fixed bottom-6 right-12 mt-6 flex items-center justify-end gap-x-4">
+        <button id="formSubmitButton" type="submit" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md">
+            <i class="fas fa-check-circle text-white"></i> Submit Order
+        </button>
+    </div>
+  </form>
+</div>
+
+{% for message in messages %}
+<script>
+    // Function to display the overlay message
+    function displayMessageOverlay(operation_state, message, operation_name, name_color) {
+        //console.log("display");
+        const backgroundColor = operation_state === 'allowed' ? 'bg-green-500' : 'bg-red-900';
+        let operationColor = name_color == 0 ? 'text-green-400' : name_color == 1 ? 'text-red-700': 'text-yellow-400';
+    
+        const overlay = $(`<div class="fixed top-0 left-0 right-0 ${backgroundColor} text-white text-center p-3 z-50 transition-transform transform -translate-y-full" id="message-overlay"></div>`);
+        overlay.append(message + ` <span class="font-semibold ${operationColor}"> ${operation_name}</span>`);
+      
+        // Append the overlay to the body
+        $('body').append(overlay);
+      
+        // Small delay before showing the overlay
+        setTimeout(function() {
+            overlay.removeClass('-translate-y-full').addClass('translate-y-0');
+        }, 100);
+      
+        // Hide the overlay after 3 seconds
+        setTimeout(function() {
+            overlay.removeClass('translate-y-0').addClass('-translate-y-full');
+            setTimeout(function() {
+                overlay.remove();
+            }, 500); // Remove the overlay after the sliding animation
+        }, 3000); // Show the message for 3 seconds
+    }
+
+    displayMessageOverlay(
+        'allowed', // Operation state
+        '{{ message|escapejs }}', // Message content
+        ' successfully placed!', // Optional operation name
+    );
+</script>
+{% endfor %}
+
+
+<script>
+  $(document).ready(function () {
+    // Select the details element
+    const customerForm = $('#customer-form');
+    const selectCustomer = $('#existing-customer');
+
+    // Add event listener for when the details element is toggled
+    customerForm.on('toggle', function() {
+        // Check if the details is open
+        if (customerForm.prop('open')) {
+            selectCustomer.addClass('hidden'); // Show the select element
+        } else {
+            selectCustomer.removeClass('hidden'); // Hide the select element
+        }
+    });
+
+    // Initial check if details is open when page loads
+    if (customerForm.prop('open')) {
+        selectCustomer.addClass('hidden'); // Make sure it's visible if the details are open
+    } else {
+        selectCustomer.removeClass('hidden'); // Hide it initially if details is closed
+    }
+    
+    $("#formSubmitButton").on("click", function (e) {
+        const $details = $("#customer-form");
+        const $summary = $details.find("summary");
+  
+        // Check if the <details> tag is not open
+        if (!$details.prop("open") && !(selectCustomer.val())) {
+          e.preventDefault(); // Prevent form submission
+  
+          selectCustomer.addClass('border-red-500 transition');
+          $details.addClass("transition");
+
+  
+          // Change the summary's bottom border to red
+          $summary.css("border-bottom-color", "red");
+  
+          // Reset the border color after a delay
+          setTimeout(function () {
+            selectCustomer.removeClass('border-red-500');
+            $summary.css("border-bottom-color", "rgb(34, 197, 94)"); // Reset to green
+          }, 3000); // Delay in milliseconds (3 seconds)
+  
+          // Remove the transition class after the transition
+          setTimeout(() => $details.removeClass("transition"), 350);
+        }
+    });
+
+    const MAX_ROWS = 5; // Maximum number of rows allowed
+
+    $(document).on('keydown', '.custom-input', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+
+            const $currentInput = $(this);
+            const $currentRow = $currentInput.closest('.flex');
+            const $customContainer = $('#customInputContainer');
+            const $inputs = $currentRow.find('.custom-input');
+            const columnIndex = $inputs.index($currentInput);
+            const $nextRow = $currentRow.next('.flex'); // Check for the next row
+
+            // Restrict adding a new row if either column is empty
+            const firstColumnValue = $inputs.eq(0).val().trim();
+            const secondColumnValue = $inputs.eq(1).val().trim();
+
+            if (columnIndex === 0) {
+                // Move to the second column
+                $inputs.eq(1).focus();
+            } else {
+                // When Enter is pressed in the second column
+                if (!firstColumnValue || !secondColumnValue) {
+                  console.log("No Inputs");
+        
+                  // Reset any previous focus and border color
+                  $inputs.removeClass('focus:border-b-red-500').addClass('focus:border-b-green-600');
+                
+                  // Focus on the first input field that is empty and change its border color
+                  if (!firstColumnValue) {
+                      $inputs.eq(0).focus().removeClass('focus:border-b-green-600').addClass('focus:border-b-red-500');
+                  } else if (!secondColumnValue) {
+                      console.log("ASDas");
+                      $inputs.eq(1).focus().removeClass('focus:border-b-green-600').addClass('focus:border-b-red-500');
+                  }
+                  return;
+                }
+
+                if ($nextRow.length) {
+                    // If a sibling row exists, move to its first column
+                    $nextRow.find('.custom-input').eq(0).focus();
+                } else {
+                    const totalRows = $customContainer.children('.flex').length;
+                    if (totalRows >= MAX_ROWS) {
+                        // Change border color for all inputs instead of showing an alert
+                        $customContainer.find('.custom-input').addClass('border-b border-b-green-400');
+                        return;
+                    }
+
+                    // Add a new row and focus on its first column
+                    const newRow = `
+                        <div class="flex items-center space-x-4 px-2">
+                          <input type="text" class="px-2 py-1 custom-input w-1/4 focus:ring-0 focus:border-green-600 focus:border-b border-0 bg-gray-50" placeholder="Name" />
+                          <span class="block text-lg font-bold">:</span>
+                          <input type="text" class="px-2 py-1 custom-input w-3/4 focus:ring-0 focus:border-green-600 focus:border-b border-0 bg-gray-50" placeholder="Details" />
+                        </div>`;
+                    $customContainer.append(newRow);
+                    $customContainer.find('.flex:last-child .custom-input:first-child').focus(); 
+                }
+            }
+        }
+      });
+      
+        // Function to update hidden input #name
+        function updateNameField() {
+            // If customer-form <details> is not open
+            if (!customerForm.prop('open')) {
+                console.log("Not opened!")
+                // Check if an option is selected in #existing-customer
+                if (selectCustomer.val()) {
+                    $('#name').val(selectCustomer.val());
+                    $('#customer-form').find('input').removeAttr('required');
+                    return;
+                }
+            }
+
+            // Default behavior: concatenate name inputs if form is open
+            var surname = $('#customer_surname').val();
+            var firstName = $('#customer_firstname').val();
+            var middleInitial = $('#customer_middleinitial').val();
+
+            // Concatenate and set the hidden input value
+            var fullName = $.trim(surname + ", " + firstName + " " + middleInitial);
+            $('#name').val(fullName);
+            console.log($('#name').val());
+        }
+
+        // Listen for input changes in name fields
+        $('#customer_surname, #customer_firstname, #customer_middleinitial').on('input', function () {
+            updateNameField();
+        });
+
+        // Listen for changes in #existing-customer dropdown
+        $('#existing-customer').on('change', function () {
+            console.log("existing")
+            updateNameField();
+        });
+
+      // Fetch customization options and dynamically create a checklist
+      $('#service').change(function () {
+          const serviceId = $(this).val();
+          if (serviceId) {
+              $.ajax({
+                  url: "{% url 'get_customization_options' %}",
+                  data: { service_id: serviceId },
+                  success: function (response) {
+                      const customizationField = $('#customizationOptions');
+                      customizationField.empty();  // Clear previous options
+                      response.options.forEach(option => {
+                        //console.log("Added customization: " + customizationField);
+                        customizationField.append(`
+                          <div class="basis-[20%] mb-1 gap-2 flex items-center justify-start">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                              <input type="checkbox" name="customizations" value="${option.id}" class="hidden checkbox">
+                              <span class="w-5 h-5 bg-gray-200 border-2 border-gray-300 rounded-md flex items-center justify-center checkmark transition-all duration-300"></span>
+                              <span class="font-bold">${option.name.charAt(0).toUpperCase() + option.name.slice(1).toLowerCase()}</span>
+                            </label>
+                          </div>
+
+                        `);
+                      });
+
+                      const customizationLabel = $('#customizationOptionsLabel');
+                        const popoverMessage = $('#popoverMessage');
+
+                        customizationLabel.css('cursor', 'pointer');
+                        popoverMessage.removeClass('hidden');
+
+                      customizationLabel.on('click', function () {
+                        // Check all inputs inside customizationField
+                        customizationField.find('input[type="checkbox"]').click();
+                    });
+
+                      $('#customTabs').children(':not([data-tab="custom-tab"])').remove();
+                      $('.tab-content').children(':not(#custom-tab)').remove();
+
+                      // Reset active tab to "Custom"
+                      $('.tab-link').removeClass('text-blue-500 active').addClass('text-gray-500');
+                      $('.tab-pane').removeClass('active');
+                      $('[data-tab="custom-tab"]').addClass('text-blue-500 active');
+                      $('#custom-tab').addClass('active');
+                  },
+                  error: function () {
+                      alert('Failed to load customization options.');
+                  }
+              });
+          }
+      });
+
+      // Track the active tab
+      let activeTabId = 'custom-tab'; // Default active tab
+
+      // Tab switching functionality
+      $(document).on('click', '.tab-link', function () {
+          const tabId = $(this).data('tab');
+
+          // Update active tab
+          activeTabId = tabId;
+          console.log(activeTabId);
+
+          // Make all tabs inactive
+          $('.tab-link').removeClass('text-blue-500 active').addClass('text-gray-500');
+          $('.tab-pane').removeClass('active');
+
+          // Activate clicked tab and corresponding content
+          $(this).addClass('text-blue-500 active');
+          $(`#${tabId}`).addClass('active');
+      });
+
+        // Dynamic tab handling when a customization option is selected
+        $('#customizationOptions').on('change', 'input[type="checkbox"]', function () {
+            const customizationId = $(this).val();
+            const isChecked = $(this).prop('checked');
+
+            // Handle the unchecking of a checkbox
+            if (!isChecked) {
+                const removedTabId = `custom-tab-${customizationId}`;
+                activeTabId = $('.tab-link.active').data('tab'); // Get the currently active tab ID
+
+                // If the active tab is being removed, revert to the Custom tab
+                if (activeTabId === removedTabId) {
+                    console.log("Reverting to Custom tab");
+                    activeTabId = 'custom-tab'; // Reset active tab
+                    $('[data-tab="custom-tab"]').addClass('text-blue-500 active');
+                    $('#custom-tab').addClass('active');
+                }
+
+                // Remove the tab and tab content related to the unchecked option
+                $(`#${removedTabId}`).remove(); // Remove tab content
+                $(`.tab-link[data-tab="${removedTabId}"]`).remove(); // Remove tab link
+                return; // Stop further processing for this unchecked customization
+            }
+
+            const selectedOptions = $('input[name="customizations"]:checked').map(function () {
+                return this.value;
+            }).get();
+
+            const serviceId = $('#service').val();
+
+            // Ensure a service is selected
+            if (!serviceId) {
+                alert('Please select a service first.');
+                return;
+            }
+
+            // Fetch pricing options for the newly selected customization
+            $.ajax({
+                url: "{% url 'get_pricing_options' %}",
+                data: {
+                    service_id: serviceId,
+                    customization_ids: selectedOptions,
+                },
+                success: function (response) {
+                    const pricingData = response.pricing_options;
+
+                    // Process only the newly checked customization
+                    if (isChecked) {
+                        const optionName = $(`input[value="${customizationId}"]`)
+                            .closest('label') // Traverse to the closest parent label
+                            .find('span.font-bold') // Find the span with class font-bold within that label
+                            .first() // Ensure to select the first occurrence in case of duplicates
+                            .text()
+                            .trim();
+
+                        const tabId = `custom-tab-${customizationId}`;
+
+                        // Add the tab and content for the new customization
+                        if (!$(`#${tabId}`).length) {
+                            console.log(optionName);
+                            $('#customTabs').append(`
+                                <div class="tab-link" data-tab="${tabId}">${optionName}</div>
+                            `);
+                            $('.tab-content').append(`
+                                <div class="tab-pane" id="${tabId}">
+                                    <p>Pricing Options for ${optionName}:</p>
+                                    <div class="pricing-options-container"></div>
+                                </div>
+                            `);
+                        }
+
+                        // Populate pricing options in the new tab content
+                        const pricingOptionsContainer = $(`#${tabId} .pricing-options-container`);
+                        pricingOptionsContainer.empty(); // Clear previous options if any
+                        if (pricingData[customizationId]) {
+                            pricingData[customizationId].forEach(option => {
+                                pricingOptionsContainer.append(`
+                                    <div class="flex items-center space-x-2">
+                                        <label class="flex items-center gap-2 cursor-pointer">
+                                            <input type="checkbox" id="pricing-${option.id}" name="pricing_options" value="${option.id}" class="hidden checkbox">
+                                            <span class="w-5 h-5 bg-gray-200 border-2 border-gray-300 rounded-md flex items-center justify-center checkmark transition-all duration-300"></span>
+                                            <span class="font-bold">${option.description} - <strong>₱${option.price}</strong></span>
+                                        </label>
+                                    </div>
+                                `);
+                            });
+                        } else {
+                            pricingOptionsContainer.append(`
+                                <p class="text-gray-500">No pricing options available for this customization.</p>
+                            `);
+                        }
+                    }
+                },
+                error: function () {
+                    alert('Failed to load pricing options.');
+                }
+            });
+        });
+
+  });
+</script>
+
+<!-- -->
+<script>
+  $(document).ready(function () {
+    
+    // Collect all data when the form is submitted or during other triggers
+    function collectJobSpecificationsData() {
+        const jobSpecifications = [];
+
+        // Collect data from the Custom tab (custom tab will always exist)
+        $('#customInputContainer .flex').each(function () {
+            const specification = $(this).find('.custom-input').eq(0).val().trim();
+            const details = $(this).find('.custom-input').eq(1).val().trim();
+            
+            if (specification && details) {
+                jobSpecifications.push({
+                    specification: specification,
+                    details: details
+                });
+            }
+        });
+        //console.log("Custom Tab Specifications:", jobSpecifications);
+        // Collect data from dynamically added tabs (e.g., size, color, etc.)
+        $('.tab-pane').each(function () {
+            const tabPaneId = $(this).attr('id');
+            if (tabPaneId && tabPaneId !== 'custom-tab') {  // Exclude the custom tab
+                const tabData = [];
+                $(this).find('.pricing-options-container .checkbox:checked').each(function () {
+                    const pricingOptionValue = $(this).val();
+                    const tabID = $(`.tab-link[data-tab="${tabPaneId}"]`).text().trim();
+                    console.log(tabID);
+                    const specification = tabID;
+                    const details = $(this).siblings('span').text().trim();
+
+                    tabData.push({
+                        specification: specification,
+                        details: details
+                    });
+                });
+
+                // Add the selected pricing options to the jobSpecifications array
+                jobSpecifications.push(...tabData);
+            }
+        });
+
+        //console.log("Compiled Job Specifications:", jobSpecifications);
+        // Return the full job specifications JSON object
+        return { jobs_specifications: jobSpecifications };
+    }
+
+    // Example: on form submission, you can collect the data and populate a hidden input field
+    $('#formSubmitButton').on('click', function () {
+        const jobSpecificationsData = collectJobSpecificationsData();
+
+        // Convert the JSON data into a string and store it in a hidden input
+        $('#jobSpecificationsJson').val(JSON.stringify(jobSpecificationsData));
+        //console.log(jobSpecificationsData);  // For debugging purposes
+    });
+  });
+</script>
+
+

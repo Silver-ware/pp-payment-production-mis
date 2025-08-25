@@ -1,0 +1,66 @@
+{% load static tailwind_tags %}
+
+<!DOCTYPE html>
+<html class="h-full">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    {% tailwind_css %}
+    <script src="{% static 'jquery/jquery-3.7.1.min.js' %}"></script>
+    <script src="{% static 'jquery/jquery-ui.js' %}"></script>
+  </head>
+  <body>
+    <nav class="fixed top-0 w-full bg-[#335b39] border-b-2 border-green-950">
+      <div class="px-3 py-3 lg:px-5 lg:pl-3">
+        <div class="flex items-center justify-between">
+          <div class="pl-2 flex items-center justify-start rtl:justify-end">
+            <span class="text-sm text-white">Username : </span>
+          </div>
+          <div class="flex items-center justify-start rtl:justify-end">
+            <a href="#" class="flex ms-2 md:me-24">
+              <span class="self-center text-sm font-semibold whitespace-nowrap text-white">Print MIS & Payment MS of Oi Prints</span>
+            </a>
+          </div>
+          <div></div>
+        </div>
+      </div>
+    </nav>
+    <div class="flex h-screen bg-background pt-[44px]">
+      <aside class="flex flex-col justify-between w-44 bg-card text-card-foreground px-2 py-2 border-r overflow-hidden">
+        <div class="">
+          <div class="w-full bg-slate-600 h-[30px]">
+          </div>
+          <ul class="mt-4">
+            <li class="pl-2 py-1 hover:bg-gray-200 rounded-md"><a href="#">Home</a></li>
+            <li class="pl-2 py-1 hover:bg-gray-200 rounded-md"><a href="#">Orders</a></li>
+            <li class="pl-2 py-1 hover:bg-gray-200 rounded-md"><a href="#">Estimates</a></li>
+            <li class="pl-2 py-1 hover:bg-gray-200 rounded-md"><a href="#">Scheduling</a></li>
+            <li class="pl-2 py-1 hover:bg-gray-200 rounded-md"><a href="#">Billing</a></li>
+            <li class="pl-2 py-1 hover:bg-gray-200 rounded-md"><a href="#">Tracking</a></li>
+            <li class="pl-2 py-1 hover:bg-gray-200 rounded-md"><a href="#">Production</a></li>
+            <li class="pl-2 py-1 hover:bg-gray-200 rounded-md"><a href="#">Shipping</a></li>
+            <li class="pl-2 py-1 hover:bg-gray-200 rounded-md"><a href="#">CRM</a></li>
+            <li class="pl-2 py-1 hover:bg-gray-200 rounded-md"><a href="#">Inventory</a></li>
+            <li class="pl-2 py-1 hover:bg-gray-200 rounded-md"><a href="#">Reporting</a></li>
+            <li class="pl-2 py-1 hover:bg-gray-200 rounded-md"><a href="#">System Setup</a></li>
+            <li class="pl-2 py-1 hover:bg-gray-200 rounded-md"><a href="#">Admin</a></li>
+          </ul>
+        </div>
+        <div class="w-full bg-slate-600 h-[20px]">
+        </div> 
+      </aside>
+  
+      <main class="flex-1 h-full overflow-y-scroll">
+        <div class="flex-1 h-[calc(100%-44px)]">
+          <div class="sticky top-[2px] w-full bg-[#91ebb0] pl-6 py-2">
+            <h1 class="text-lg font-bold text-black">Dashboard</h1>
+          </div>
+          {% block content %}
+          {% endblock %}
+          </div>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

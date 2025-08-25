@@ -1,0 +1,132 @@
+{% extends 'extends/main_interface.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+  .tab-content {
+      margin-top: 20px;
+  }
+  .tab-pane {
+      display: none;
+  }
+  .tab-pane.active {
+      display: block;
+  }
+  .custom-tab-table td {
+      padding: 5px;
+  }
+</style>
+<div class="container mx-auto px-4">
+  <h2 class="text-2xl font-semibold mb-4">Customization Form</h2>
+
+  <!-- Customization Options Selection -->
+  <form id="customizationForm" class="space-y-4">
+      <div class="space-y-2">
+          <label for="customizationOptions" class="block text-sm font-medium text-gray-700">Select Customization Options</label>
+          <select id="customizationOptions" class="form-select block w-full border-gray-300 rounded-md">
+              <option value="paper_size">Paper Size</option>
+              <option value="paper_type">Paper Type</option>
+              <option value="print_color">Print Color</option>
+          </select>
+      </div>
+
+      <button type="submit" class="mt-3 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">Submit</button>
+  </form>
+
+  <!-- Tabs for Customization Options -->
+  <div id="tabsSection" class="mt-6" style="display: none;">
+      <div class="mb-4">
+          <ul class="flex space-x-4" id="customizationTabs">
+              <li class="tab-item">
+                  <button id="custom-tab" class="tab-link py-2 px-4 border-b-2 border-blue-500 text-blue-500 font-medium">Custom</button>
+              </li>
+              <!-- Dynamic Tabs for Each Customization Option -->
+          </ul>
+      </div>
+
+      <div class="tab-content" id="customizationTabsContent">
+          <!-- Default Custom Tab -->
+          <div class="tab-pane active" id="custom">
+              <table class="custom-tab-table w-full">
+                  <tr>
+                      <td><input type="text" class="form-input w-full" placeholder="Enter value"></td>
+                      <td><input type="text" class="form-input w-full" placeholder="Enter value"></td>
+                  </tr>
+                  <tr>
+                      <td><input type="text" class="form-input w-full" placeholder="Enter value"></td>
+                      <td><input type="text" class="form-input w-full" placeholder="Enter value"></td>
+                  </tr>
+              </table>
+          </div>
+          <!-- Dynamic Tabs Content for Each Customization Option -->
+      </div>
+  </div>
+</div>
+
+<script>
+  $(document).ready(function () {
+      // Handle customization form submission
+      $('#customizationForm').on('submit', function (e) {
+          e.preventDefault();
+          
+          // Get selected customization options
+          const selectedOptions = $('#customizationOptions').val();
+
+          // Show the tabs section
+          $('#tabsSection').show();
+
+          // Clear previous tabs
+          $('#customizationTabs').find('.tab-item:not(:first)').remove();
+          $('#customizationTabsContent').find('.tab-pane:not(#custom)').remove();
+
+          // Add tabs dynamically based on selected options
+          selectedOptions.forEach(function(option) {
+              const tabId = option + '-tab';
+              const tabContentId = option + '-content';
+
+              // Add a new tab for each selected customization option
+              $('#customizationTabs').append(`
+                  <li class="tab-item">
+                      <button class="tab-link py-2 px-4 border-b-2 text-gray-500 hover:text-blue-500 hover:border-blue-500" id="${tabId}">${option.replace('_', ' ').toUpperCase()}</button>
+                  </li>
+              `);
+
+              // Add the corresponding tab content for each option
+              $('#customizationTabsContent').append(`
+                  <div class="tab-pane" id="${tabContentId}">
+                      <h5 class="font-medium text-lg">${option.replace('_', ' ').toUpperCase()} Pricing Options</h5>
+                      <div class="space-y-2">
+                          <label><input type="checkbox" class="mr-2"> Pricing Option 1</label><br>
+                          <label><input type="checkbox" class="mr-2"> Pricing Option 2</label><br>
+                          <label><input type="checkbox" class="mr-2"> Pricing Option 3</label>
+                      </div>
+                  </div>
+              `);
+          });
+
+          // Add event listeners for tab navigation
+          $('.tab-link').on('click', function() {
+              const targetTab = $(this).attr('id').replace('-tab', '');
+              $('.tab-pane').removeClass('active');
+              $('#' + targetTab).addClass('active');
+              $('.tab-link').removeClass('text-blue-500 border-blue-500');
+              $(this).addClass('text-blue-500 border-blue-500');
+          });
+      });
+
+      // Move cursor between input fields in Custom tab
+      $(document).on('keypress', '.custom-tab-table input', function (e) {
+          const $this = $(this);
+          if (e.which === 13) { // Enter key pressed
+              let nextCell = $this.closest('td').next().find('input');
+              if (!nextCell.length) {
+                  nextCell = $this.closest('tr').next().find('td:first-child input');
+              }
+              if (nextCell.length) {
+                  nextCell.focus();
+              }
+          }
+      });
+  });
+</script>
+{% endblock %}

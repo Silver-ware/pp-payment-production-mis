@@ -1,0 +1,133 @@
+{% extends 'extends/main_interface.html' %}
+
+{% block aside_var %}
+    {% with crm_active=True %}
+        {{ block.super }}
+    {% endwith %}
+{% endblock aside_var %}
+
+{% block title %}CRM{% endblock %}
+
+{% block content %}
+<div class="customer-popover bg-gray-50 h-full  shadow-lg rounded-lg px-3 pb-4 w-full transition-transform duration-300 ease-in-out transform scale-100 overflow-y-scroll overflow-x-hidden scrollbar-thin scrollbar-thumb-green-500 scrollbar-track-gray-300">
+  <h3 class="sticky top-0 bg-gray-50 py-4 pl-3 text-green-700 font-bold text-2xl mb-4 w-full border-b border-green-600 border-dashed pb-2 flex justify-between items-center">
+    <span>CUSTOMER LIST:</span>
+    <!-- Search Input Field -->
+    <input type="text" id="searchCustomer" class="px-3 py-1 border border-gray-300 rounded-md focus:ring-green-600 focus:border-green-600" placeholder="Search by customer name..." oninput="filterCustomers()">
+  </h3>
+  <div class="flex h-full flex-wrap px-2 mb-2 gap-4" id="customerList">
+      {% for customer in customers %}
+      <div class="customer-section h-max rounded-lg p-3 transition-all hover:shadow-lg hover:shadow-green-900 flex-1 basis-[48%] w-full customer-item" data-customer-name="{{ customer.name|lower }}">
+          <h4 class="text-green-500 font-semibold text-lg mb-4 uppercase"><span class="font-bold text-black"> CUSTOMER: </span>{{ customer.name }}</h4>
+          <div class="overflow-x-auto scrollbar-thin scrollbar-thumb-green-500 scrollbar-track-gray-300">
+              <table class="w-full border-collapse border border-green-500 text-left">
+                  <thead>
+                      <tr class="bg-green-100">
+                          <th class="border border-green-500 px-4 py-2">Contact Number</th>
+                          <th class="border border-green-500 px-4 py-2">Email</th>
+                          <th class="border border-green-500 px-4 py-2">Address</th>
+                          <th class="border border-green-500 px-4 py-2">Order History</th>
+                          <th class="border border-green-500 px-4 py-2">Payment History</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <tr class="hover:bg-green-50">
+                          <td class="border border-green-500 px-4 py-2">{{ customer.contact_number }}</td>
+                          <td class="border border-green-500 px-4 py-2">{{ customer.email }}</td>
+                          <td class="border border-green-500 px-4 py-2">{{ customer.address }}</td>
+                          <td class="border border-green-500 px-4 py-2">
+                              <button class="order-toggle text-sm text-blue-500 hover:underline">
+                                  View Order History
+                              </button>
+                              <div class="order-history hidden mt-2 bg-gray-100 border border-gray-300 rounded-lg p-2 shadow-lg z-10">
+                                  {% for order in customer.get_order_history %}
+                                  <p class="text-xs text-gray-700"><strong>Order ID:</strong> {{ order.order_id }} | <strong>Status:</strong> {{ order.get_status_display }}</p>
+                                  {% empty %}
+                                  <p class="text-xs text-gray-500 italic">No orders found.</p>
+                                  {% endfor %}
+                              </div>
+                          </td>
+                          <td class="border border-green-500 px-4 py-2">
+                              <button class="payment-toggle text-sm text-blue-500 hover:underline">
+                                  View Payment History
+                              </button>
+                              <div class="payment-history hidden mt-2 bg-gray-100 border border-gray-300 rounded-lg p-2 shadow-lg z-10">
+                                  {% for payment in customer.get_payment_history %}
+                                  <p class="text-xs text-gray-700"><strong>Payment ID:</strong> {{ payment.payment_id }} | <strong>Amount:</strong> ${{ payment.amount }} | <strong>Status:</strong> {{ payment.get_status_display }}</p>
+                                  {% empty %}
+                                  <p class="text-xs text-gray-500 italic">No payments found.</p>
+                                  {% endfor %}
+                              </div>
+                          </td>
+                      </tr>
+                  </tbody>
+              </table>
+          </div>
+      </div>
+      {% endfor %}
+  </div>
+</div>
+
+<script>
+  // Filter customers based on the search input
+  function filterCustomers() {
+    const searchQuery = document.getElementById('searchCustomer').value.toLowerCase();
+    const customerItems = document.querySelectorAll('.customer-item');
+    
+    customerItems.forEach(function(item) {
+      const customerName = item.getAttribute('data-customer-name');
+      if (customerName.includes(searchQuery)) {
+        item.style.display = 'block'; // Show the customer item
+      } else {
+        item.style.display = 'none'; // Hide the customer item
+      }
+    });
+  }
+
+  $(document).ready(function () {
+    // Toggle order history
+    $(".order-toggle").on("click", function (e) {
+        e.preventDefault();
+        const $orderHistory = $(this).next(".order-history");
+        $(".order-history").not($orderHistory).slideUp(300); // Hide other open details
+        $orderHistory.slideToggle(300); // Toggle current order history
+    });
+
+    // Toggle payment history
+    $(".payment-toggle").on("click", function (e) {
+        e.preventDefault();
+        const $paymentHistory = $(this).next(".payment-history");
+        $(".payment-history").not($paymentHistory).slideUp(300); // Hide other open details
+        $paymentHistory.slideToggle(300); // Toggle current payment history
+    });
+  });
+</script>
+
+<style>
+  /* Add a shadow and smooth transitions for order and payment history */
+  .order-history, .payment-history {
+      transition: all 0.3s ease-in-out;
+  }
+
+  /* Hover effect for table rows */
+  tbody tr:hover {
+      background-color: #f0fdf4; /* Light green */
+  }
+
+  /* Ensure consistent spacing */
+  table th, table td {
+      text-align: left;
+      white-space: nowrap;
+  }
+
+  /* Style the search input */
+  #searchCustomer {
+    max-width: 250px;
+    font-size: 0.875rem;
+    border-radius: 0.375rem;
+    padding: 0.5rem;
+    transition: all 0.3s ease-in-out;
+  }
+</style>
+
+{% endblock content %}

@@ -1,0 +1,129 @@
+<div id="alerts-popover" class="w-full bg-black bg-opacity-50 justify-center items-center hidden">
+  <div class="fixed bottom-2 right-4 bg-green-50 w-[30%] max-w-lg px-6 py-3 rounded-lg shadow-lg shadow-gray-600">
+    <button id="close-popover" class="absolute top-2 right-2 text-red-500 text-2xl font-bold">&times;</button>
+    <h2 class="text-2xl text-green-600 font-bold mb-4">Contact Supplier</h2>
+    <form id="supplier-contact-form" method="POST" class="space-y-2">
+      {% csrf_token %}
+      <div>
+        <label for="supplier-name" class="block text-sm font-semibold text-gray-700">Supplier Name</label>
+        <input
+          type="text"
+          id="supplier-name"
+          name="supplier_name"
+          class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500"
+          readonly
+        />
+      </div>
+      <div>
+        <label for="material-name" class="block text-sm font-semibold text-gray-700">Material</label>
+        <input
+          type="text"
+          id="material-name"
+          name="material_name"
+          class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500"
+          readonly
+        />
+      </div>
+      <div>
+        <label for="message" class="block text-sm font-semibold text-gray-700">Message</label>
+        <textarea
+          id="message"
+          name="message"
+          class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500"
+          rows="4"
+        >
+Please restock the material as soon as possible.
+        </textarea>
+      </div>
+      <button
+        type="submit"
+        class="w-full bg-green-600 text-white py-2 rounded-lg shadow hover:bg-green-700 focus:outline-none"
+      >
+        Send Message
+      </button>
+    </form>
+  </div>
+</div>
+
+<div class="bg-white w-full max-w-3xl mx-auto p-6 rounded-lg shadow-lg">
+  <h2 class="sticky top-0 bg-white text-2xl text-yellow-500 font-bold mb-4 py-2 uppercase border-b border-dashed border-yellow-500">Inventory Alerts</h2>
+  <table class="w-full border-collapse border border-gray-300">
+    <thead class="bg-yellow-100">
+      <tr>
+        <th class="border border-gray-300 px-4 py-2 text-center">Material</th>
+        <th class="border border-gray-300 px-1 py-2 text-center">Stock Level</th>
+        <th class="border border-gray-300 px-1 py-2 text-center">Threshold</th>
+        <th class="border border-gray-300 px-4 py-2 text-center">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if alerts %}
+      {% for alert in alerts %}
+      <tr>
+        <td class="border border-gray-300 px-4 py-2 text-center">{{ alert.name }}</td>
+        <td class="border border-gray-300 px-2 py-2 text-red-600 text-center">{{ alert.stock_level }} {{ alert.unit_of_measurement }}</td>
+        <td class="border border-gray-300 px-2 py-2 text-center">{{ alert.reorder_threshold }}</td>
+        <td class="border border-gray-300 px-4 py-2 text-center">
+          <button
+            class="contact-supplier-btn text-blue-950 hover:underline underline-offset-2"
+            data-supplier="{{ alert.supplier.supplier_name|default:'No Supplier' }}"
+            data-material="{{ alert.name }}"
+            {% if not alert.supplier %}
+            disabled
+            class="bg-gray-300 text-gray-600 cursor-not-allowed"
+            {% endif %}
+          >
+            Contact Supplier
+          </button>
+        </td>
+      </tr>
+      {% endfor %}
+      {% else %}
+      <tr>
+        <td colspan="4" class="border border-gray-300 px-4 py-2 text-center text-gray-500">
+          No materials require restocking.
+        </td>
+      </tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+
+<script>
+  $(document).ready(function () {
+    // Open the contact supplier popover
+    $('.contact-supplier-btn').on('click', function () {
+      const supplierName = $(this).data('supplier');
+      const materialName = $(this).data('material');
+
+      $('#supplier-name').val(supplierName);
+      $('#material-name').val(materialName);
+
+      $('#alerts-popover').removeClass('hidden');
+    });
+
+    // Close the popover
+    $('#close-popover').on('click', function () {
+      $('#alerts-popover').addClass('hidden');
+    });
+
+    // Submit the contact form
+    $('#supplier-contact-form').on('submit', function (e) {
+      e.preventDefault();
+
+      const formData = $(this).serialize();
+      $.ajax({
+        url: '/contact-supplier/', // Add the URL for contacting the supplier
+        method: 'POST',
+        data: formData,
+        success: function () {
+          alert('Message sent successfully!');
+          $('#alerts-popover').addClass('hidden');
+        },
+        error: function () {
+          alert('Error sending message. Please try again.');
+        },
+      });
+    });
+  });
+</script>

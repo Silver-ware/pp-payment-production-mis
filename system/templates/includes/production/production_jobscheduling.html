@@ -1,0 +1,491 @@
+<div class="flex relative h-full">
+  <!-- Sidebar -->
+  <div id="order-sidebar" 
+    class="bg-gray-50 border-dashed border-green-600 overflow-y-auto h-full transition-[flex-basis] duration-300 ease-in-out scrollbar-thin scrollbar-thumb-green-500 scrollbar-track-gray-300"
+    style="flex-basis: 0;">
+    <h2 class="text-lg font-bold sticky top-0 bg-gray-50 p-2 flex items-center justify-center shadow-sm shadow-green-700 rounded-b-sm z-50">
+        <i class="fas fa-list mr-2 text-gray-500"></i>
+        Pending Orders
+    </h2>
+    <ul id="pending-orders" class="space-y-2 p-4">
+        {% include 'includes/production/production_sidebar.html' %}
+    </ul>
+    </div>
+
+  <!-- Main Content -->
+  <div class="job-scheduling-content flex-1 border-l-2 border-r-2 border-dashed border-green-600 flex items-center h-full justify-center w-full px-4 pb-6 overflow-y-hidden relative z-20">
+      <button id="toggle-sidebar" class="animate-bounce absolute flex justify-end top-4 -left-3 bg-green-600 hover:scale-110 transition-all ease-in-out rounded-3xl">
+          <i class="fas fa-chevron-right pl-6 pr-3 py-2 w-full"></i>
+      </button>
+
+    <div id="job-dropbox" 
+         class="w-full border-2 border-dashed border-gray-400 rounded p-6 text-center hover:bg-gray-200 transition ease-in">
+      <i class="fas fa-hand-point-down text-gray-500 text-2xl"></i>
+      <p>Drop an Order Here to Schedule a Job</p>
+    </div>
+
+    <!-- Job Scheduling Form -->
+    <form action="" method="POST" id="job-scheduling-form" class="hidden w-full mt-6 bg-gray-50 shadow rounded p-6 border-2 border-dashed border-green-300 h-full overflow-y-scroll scrollbar-thin scrollbar-thumb-green-700 scrollbar-track-green-200">
+        {% csrf_token %}
+        <div class="form-fields flex h-full rounded-md">
+          <!-- Order Details Section -->
+          <div id="order-details" class="p-4 bg-gray-100 rounded flex items-center space-x-4 basis-2/5">
+            <i class="fas fa-info-circle text-green-600 text-xl"></i>
+            <div>
+              <h4 class="text-lg font-bold text-green-700">Order Details</h4>
+              <p><strong>Order ID:</strong> <span id="order-id-detail"></span></p>
+              <p><strong>Customer:</strong> <span id="order-customer"></span></p>
+              <p><strong>Service:</strong> <span id="order-service"></span></p>
+              <p><strong>Deadline:</strong> <span id="order-deadline"></span></p>
+            </div>
+          </div>
+      
+          <!-- Form Inputs Section -->
+          <div class="flex-1 space-y-6 bg-white pl-6 pr-4 pt-6 pb-4">
+            <div class="flex space-x-4">
+                <!-- Assigned Equipment and Materials in Same Row -->
+                <div class="flex-1 relative basis-1/2">
+                    <label for="equipment" class="block text-sm font-medium mb-1">
+                    <i class="fas fa-cogs mr-1 text-green-500"></i> Assigned Equipment
+                    </label>
+                    <div class="flex gap-2 relative">
+                        <input type="text" id="equipment" class="px-4 py-2 border rounded w-full border-black focus:ring-green-600 focus:border-green-600" placeholder="Search equipment..."  autocomplete="off" />
+                        <!-- Custom dropdown for equipment -->
+                        <div id="equipment-dropdown" class="dropdown hidden mt-2 border border-gray-300 max-h-36 overflow-y-auto absolute top-full w-full bg-white rounded-sm z-50">
+                            {% for equipment in equipment_list %}
+                            <div class="dropdown-item px-4 py-2 hover:bg-green-100 cursor-pointer" data-value="{{ equipment.name }}" data-equipment-id="{{ equipment.equipment_id }}">
+                            {{ equipment.name }}
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <button type="button" id="popover-equipment-button" class="p-2 bg-blue-500 text-white rounded">
+                            <i class="fas fa-cogs"></i>
+                        </button>
+                    </div>
+                
+                    <!-- Popover for selected equipment -->
+                    <div id="popover-equipments" class="hidden w-full p-4 mt-2 bg-white border border-gray-300 rounded shadow-md absolute z-10">
+                        <h3 class="font-bold text-green-700 border-b border-green-600">Selected Equipment</h3>
+                        <ul id="popover-equipments-list">
+                            <!-- Selected equipment will be added here -->
+                        </ul>
+                    </div>
+                </div>
+              
+                <div class="flex-1 basis-1/2 w-max relative">
+                    <label for="materials" class="block text-sm font-medium mb-1">
+                        <i class="fas fa-box mr-1 text-green-500"></i> Materials
+                    </label>
+                    <div class="flex gap-2">
+                        <select id="materials" class="p-2 border rounded w-full border-black focus:ring-green-600 focus:border-green-600">
+                            <option value="" disabled selected>Select an equipment first.</option>
+                        </select>
+                    
+                        <!-- Button to show popover -->
+                        <button type="button" id="popover-button" class="p-2 bg-blue-500 text-white rounded">
+                            <i class="fas fa-box"></i>
+                        </button>
+                    </div>
+                    
+                
+                    <!-- Popover that shows selected materials -->
+                    <div id="popover-materials" class="hidden w-full p-4 mt-2 bg-white border border-gray-300 rounded shadow-md absolute z-10">
+                        <h3 class="font-bold text-green-700 border-b border-green-600">Selected Materials</h3>
+                        <ul id="popover-materials-list">
+                            <!-- Selected materials will be added here -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+      
+            <div class="flex space-x-4">
+              <!-- Staff Assigned and Priority in Same Row -->
+              <div class="flex-1">
+                <label for="staff-assigned" class="block text-sm font-medium mb-1">
+                  <i class="fas fa-user-tie mr-1 text-green-500"></i> Staff Assigned
+                </label>
+                <select id="staff-assigned" class="p-2 border rounded w-full focus:ring-green-600 focus:border-green-600 border-black">
+                  <option value="" selected disabled>Select a Staff/Designer</option>
+                  {% for staff in staff_list %}
+                  <option value="{{ staff.first_name }}">{{ staff.first_name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="flex-1">
+                <label class="block text-sm font-medium mb-1">
+                  <i class="fas fa-flag mr-1 text-green-500"></i> Priority
+                </label>
+                <div class="flex space-x-4">
+                  <label class="text-green-500 font-semibold"><input type="radio" name="priority" value="HIGH" class="mr-1 focus:ring-green-500 focus:checked:bg-red-800 checked:bg-red-800"> High</label>
+                  <label class="text-green-800 font-semibold"><input type="radio" name="priority" value="MODERATE" class="mr-1 focus:ring-green-700 focus:checked:bg-yellow-600 checked:bg-yellow-600" checked> Moderate</label>
+                  <label class="text-green-950 font-semibold"><input type="radio" name="priority" value="LOW" class="mr-1 focus:ring-green-950 focus:checked:bg-green-800 checked:bg-green-800"> Low</label>
+                </div>
+              </div>
+            </div>
+      
+            <button type="submit" id="submit-production" class="bg-green-600 text-white px-4 py-2 rounded flex items-center mt-4 hover:bg-green-700">
+              <i class="fas fa-save mr-2"></i> Save Job
+            </button>
+          </div>
+        </div>
+      </form>
+  </div>
+</div>
+
+<!-- Form Submission and Success Message -->
+<script>
+    $(document).ready(function() {
+        // Collect data for submission
+        $('#submit-production').on('click', function (e) {
+            e.preventDefault();
+            
+            const materials = [];
+            $('#popover-materials-list li').each(function () {
+                materials.push($(this).data('material'));
+            });
+
+            const equipmentAssigned = [];
+            $('#popover-equipments-list li').each(function () {
+                equipmentAssigned.push({
+                    equipment_id: $(this).data('equipment-id'),
+                });
+            });
+
+            const formData = {
+                order: $('#order-id-detail').text(),
+                materials: materials,
+                priority: $('#priority').val(),
+                quality_checks: JSON.stringify([]),
+                equipment_assigned: JSON.stringify(equipmentAssigned),
+            };
+
+            const csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+            // Submit data via AJAX
+            $.ajax({
+                url: '/submit-production/',
+                method: 'POST',
+                data: formData,
+                beforeSend: function (xhr) {
+                    // Set CSRF token in request header
+                    xhr.setRequestHeader('X-CSRFToken', csrfToken);
+                },
+                success: function (response) {
+                    if (response.success) {
+                        displayMessageOverlay(
+                            response.operation_state,
+                            response.message,
+                            response.operation_name,
+                            response.name_color
+                        );
+                        $('#job-scheduling-form')[0].reset();
+                        $('#popover-equipments-list').empty();
+                        $('#popover-materials-list').empty();
+                        $('#popover-equipment-button').click();
+                        $('#popover-button').click();
+                        $('#job-scheduling-form').addClass('hidden');
+                        $('#job-dropbox').removeClass('hidden');
+
+
+                        $('#pending-orders').html(response.sidebar);
+                        $('#toggle-sidebar').click();
+                    } else {
+                        alert(`Error: ${response.error}`);
+                    }
+                },
+                error: function (error) {
+                    console.error('AJAX error:', error);
+                },
+            });
+        });
+
+        function displayMessageOverlay(operation_state, message, operation_name, name_color) {
+            //console.log("display");
+            const backgroundColor = operation_state === 'allowed' ? 'bg-green-500' : 'bg-red-900';
+            let operationColor = name_color == 0 ? 'text-green-400' : name_color == 1 ? 'text-red-700': 'text-yellow-400';
+        
+            const overlay = $(`<div class="fixed top-0 left-0 right-0 ${backgroundColor} text-white text-center p-3 z-50 transition-transform transform -translate-y-full" id="message-overlay"></div>`);
+            overlay.append(message + ` <span class="font-semibold ${operationColor}"> ${operation_name}</span>`);
+          
+            // Append the overlay to the body
+            $('body').append(overlay);
+          
+            // Small delay before showing the overlay
+            setTimeout(function() {
+                overlay.removeClass('-translate-y-full').addClass('translate-y-0');
+            }, 100);
+          
+            // Hide the overlay after 3 seconds
+            setTimeout(function() {
+                overlay.removeClass('translate-y-0').addClass('-translate-y-full');
+                setTimeout(function() {
+                    overlay.remove();
+                }, 500); // Remove the overlay after the sliding animation
+            }, 3000); // Show the message for 3 seconds
+        }
+    });
+</script>
+
+
+<!-- Equipment and Materials/Inventory -->
+<script>
+    $(document).ready(function() {
+        /// Equipment Dropdown ///
+        const $inputField = $('#equipment');
+        const $dropdown = $('#equipment-dropdown');
+
+        // Handle input event for filtering dropdown items
+        $inputField.on('input', function () {
+            const value = $(this).val().toLowerCase();
+            let hasMatch = false;
+
+            $dropdown.find('.dropdown-item').each(function () {
+            const text = $(this).text().toLowerCase();
+            if (text.includes(value)) {
+                $(this).removeClass('hidden');
+                hasMatch = true;
+            } else {
+                $(this).addClass('hidden');
+            }
+            });
+
+            // Show or hide the dropdown based on matches
+            if (hasMatch) {
+            $dropdown.removeClass('hidden');
+            } else {
+            $dropdown.addClass('hidden');
+            }
+        });
+
+        // Handle dropdown item click
+        $dropdown.on('click', '.dropdown-item', function () {
+            const selectedValue = $(this).data('value');
+            $inputField.val(selectedValue);
+            $dropdown.addClass('hidden');
+        });
+
+        // Hide dropdown when input loses focus
+        $inputField.on('blur', function () {
+            setTimeout(() => {
+            $dropdown.addClass('hidden');
+            }, 250);
+        });
+
+        // Prevent dropdown from closing when clicking inside it
+        $dropdown.on('mousedown', function (e) {
+            e.preventDefault();
+        });
+
+
+        /// Equipment PopOver ///
+        
+        $(document).on('click', '#equipment-dropdown .dropdown-item', function () {
+            const selectedEquipment = $(this).data('value');
+            const selectedEquipmentId = $(this).data('equipment-id');
+            const equipmentList = $('#popover-equipments-list');
+            const equipmentName = $('#equipment').val(); 
+    
+            if (equipmentName) {
+                $.ajax({
+                    url: '/fetch-materials/',  // The URL endpoint to fetch the materials
+                    method: 'GET',
+                    data: { 'equipment_name': equipmentName },
+                    success: function(response) {
+                        const materials = response.materials;  // List of materials from the server
+                        $('#materials').html('<option value="" disabled selected>Select a materials.</option>');
+                        materials.forEach(material => {
+                            $('#materials').append(`<option class="hover:bg-green-700" value="${material.id}">${material.name}</option>`);
+                        });
+                    },
+                    error: function(error) {
+                        console.error('Error fetching materials:', error);
+                    }
+                });
+            }
+    
+            // Check if the equipment is already in the list if not, add to the equipment list
+            if (!equipmentList.find(`[data-equipment="${selectedEquipment}"]`).length) {
+                equipmentList.append(`
+                    <li data-equipment-id="${selectedEquipmentId}" class="flex justify-between items-center">
+                        <span>${selectedEquipment}</span>
+                        <button type="button" class="remove-equipment text-red-500 text-sm">Remove</button>
+                    </li>
+                `);
+            }
+    
+            // Hide the dropdown after selection
+            $('#equipment-dropdown').addClass('hidden');
+            $('#equipment').addClass("text-green-700 font-semibold");
+        });
+    
+        // Toggle the equipment popover
+        $('#popover-equipment-button').on('click', function () {
+            $('#popover-equipments').toggleClass('hidden');
+        });
+    
+        // Remove equipment from the popover list
+        $('#popover-equipments-list').on('click', '.remove-equipment', function () {
+            $(this).parent('li').remove();
+        });
+    
+        // Hide dropdown when clicking outside
+        $(document).on('click', function (e) {
+            if (!$(e.target).closest('#equipment, #equipment-dropdown').length) {
+                $('#equipment-dropdown').addClass('hidden');
+            }
+        });
+        
+
+
+        /// Materials Pop Over ///
+
+        let selectedMaterials = []; 
+
+        // Handle material selection
+        $(document).on('change', '#materials', function() {
+            const selectedMaterialId = $(this).val();  // Get selected material ID
+            console.log(selectedMaterialId);
+            const selectedMaterialName = $(this).find('option:selected').text();  // Get selected material name
+            //console.log(selectedMaterialId);    
+
+            // If material is not already selected, add it
+            if (!selectedMaterials.some(material => material.id === selectedMaterialId)) {
+                selectedMaterials.push({ id: selectedMaterialId, name: selectedMaterialName });
+                updatePopover();  // Update the popover list
+            }
+
+            // Reset the selection
+            $(this).addClass("text-green-700 font-semibold");
+        });
+
+        // Update the popover with selected materials
+        function updatePopover() {
+            const popoverList = $('#popover-materials-list');
+            popoverList.empty();  // Clear current list in the popover
+
+            selectedMaterials.forEach(material => {
+                popoverList.append(`
+                <li data-material="${material.id}" class="flex justify-between items-center">
+                    <span>${material.name}</span>
+                    <button type="button" class="remove-material text-red-500 text-sm">Remove</button>
+                </li>`);
+            });
+        }
+
+
+        // Remove equipment from the popover list
+        $('#popover-materials-list').on('click', '.remove-material', function () {
+            $(this).parent('li').remove();
+        });
+
+        // Show the popover when the button is clicked
+        $('#popover-button').click(function() {
+            $('#popover-materials').toggle();  // Toggle visibility of the popover
+        });
+    });    
+</script>
+
+
+
+<!-- Side Bar and Drop and Drag functionality -->
+<script>
+    $(document).ready(function () {
+        // Sidebar toggle logic
+        $('#toggle-sidebar').click(function () {
+            const sidebar = $('#order-sidebar');
+            const isOpen = sidebar.css('flex-basis') !== '0px';
+            sidebar.css('flex-basis', isOpen ? '0' : '25%');
+            
+            // Adjust main content border
+            if (isOpen) {
+                $('.job-scheduling-content').addClass('border-l-2');
+                $('#order-sidebar').removeClass('border-l-2');
+            } else {
+                $('.production-tab[data-tab="job-scheduling"]').click();
+                $('.job-scheduling-content').removeClass('border-l-2');
+                $('#order-sidebar').addClass('border-l-2');
+            }
+    
+            // Add animation to button when sidebar is closed
+            if (!isOpen) {
+                $('#toggle-sidebar').removeClass('animate-bounce');
+            } else {
+                $('#toggle-sidebar').addClass('animate-bounce');
+            }
+            $(this)
+                .toggleClass('bg-green-600', isOpen)
+                .toggleClass('bg-red-600', !isOpen)
+                .find('i')
+                .toggleClass('fa-chevron-right', isOpen)
+                .toggleClass('fa-chevron-left', !isOpen);
+        });
+  
+        // Drag-and-drop functionality
+        $('.order-item').on('dragstart', function (e) {
+            const orderData = $(this).data();
+            e.originalEvent.dataTransfer.setData('order', JSON.stringify(orderData));
+        });
+    
+        $('#job-dropbox').on('dragover', function (e) {
+            e.preventDefault();
+            $(this).addClass('bg-green-200');
+        }).on('dragleave', function () {
+            $(this).removeClass('bg-green-200');
+        }).on('drop', function (e) {
+            e.preventDefault();
+            $(this).removeClass('bg-green-200');
+
+            const orderData = JSON.parse(e.originalEvent.dataTransfer.getData('order'));
+
+            // Populate order details
+            $('#order-id-detail').text(orderData.orderId);
+            $('#order-customer').text(orderData.customer);
+            $('#order-service').text(orderData.service);
+            $('#order-deadline').text(orderData.deadline);
+
+            // Show the form and hide the old dropbox
+            $('#job-scheduling-form').removeClass('hidden');
+            $('#job-dropbox').addClass('hidden');
+
+            $('#toggle-sidebar')
+                .removeClass('bg-red-600')
+                .addClass('animate-bounce bg-green-600').find('i')
+                .removeClass('fa-chevron-left')
+                .addClass('fa-chevron-right');
+            // Automatically close the sidebar
+            $('#order-sidebar').css('flex-basis', '0');
+        });
+
+        $('#job-scheduling-form').on('dragover', function (e) {
+            e.preventDefault();
+            $(this).addClass('bg-green-200');
+        }).on('dragleave', function () {
+            $(this).removeClass('bg-green-200');
+        }).on('drop', function (e) {
+            e.preventDefault();
+            $(this).removeClass('bg-green-200');
+            $('#order-sidebar').css('flex-basis', '0');
+
+            const orderData = JSON.parse(e.originalEvent.dataTransfer.getData('order'));
+
+            $('#toggle-sidebar')
+                .removeClass('bg-red-600')
+                .addClass('animate-bounce bg-green-600').find('i')
+                .removeClass('fa-chevron-left')
+                .addClass('fa-chevron-right');
+
+            // Update order details with new order
+            $('#order-id-detail').text(orderData.orderId);
+            $('#order-customer').text(orderData.customer);
+            $('#order-service').text(orderData.service);
+            $('#order-deadline').text(orderData.deadline);
+            $('#job-scheduling-form')[0].reset();
+            $('#popover-equipments-list').empty();
+            $('#popover-materials-list').empty();
+            $('#popover-equipment-button').click();
+            $('#popover-button').click();
+        });
+    });                       
+</script>
+

@@ -1,0 +1,406 @@
+<style>
+    ul#status-options li:hover, ul#production-options li:hover{
+        background: #86efac;
+    }
+    .glow-effect {
+        animation: glow 1.5s infinite alternate;
+      }
+      
+      @keyframes glow {
+        0% {
+          box-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+        }
+        100% {
+          box-shadow: 0 0 20px rgba(0, 255, 0, 1);
+        }
+      }
+
+      
+    #progress-bar-fill {
+        transition: width 0.4s ease-in-out;
+      }
+      
+      #progress-tags .tag-start {
+        position: absolute;
+        left: 0;
+      }
+      
+      #progress-tags .tag-completed {
+        position: absolute;
+        right: 0;
+      }
+      
+    /* Base styles for the circle */
+    .priority-btn .circle {
+        width: 1rem; /* Set size of the circle */
+        height: 1rem;
+        border-radius: 50%; /* Make it a circle */
+        border: 2px solid #ddd; /* Initial border color */
+        display: inline-block;
+        background-color: transparent; /* Start with transparent circle */
+        transition: all 0.3s ease;
+    }
+    
+    /* Active state when a button is selected */
+    .priority-btn.selected .circle {
+        background-color: currentColor; /* Use the button's text color for the circle */
+    }
+    
+    /* Button styles */
+    .priority-btn {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+    }
+    
+    /* Selected button styles */
+    .priority-btn.selected {
+        color: red; /* Change text color when selected */
+    }
+    
+    /* Colors for different priorities */
+    .priority-btn.selected .circle {
+        border-color: black;
+    }
+    
+    .priority-btn:hover .circle {
+        border-color: #4caf50;
+        scale: 1.2;
+    }
+    
+</style>
+<div class="production-tracking-content border-x-2 border-dashed border-green-600 px-4 h-full"> 
+    <!-- Priority Buttons -->
+    <div class="flex pl-2 gap-1 border-b border-green-600 border-dashed">
+        <button class="priority-btn text-green-500 font-semibold p-2" data-priority="HIGH">
+          <span class="circle mr-2"></span>
+          High
+        </button>
+        <button class="priority-btn text-yellow-500 font-semibold p-2" data-priority="MODERATE">
+          <span class="circle mr-2"></span>
+          Moderate
+        </button>
+        <button class="priority-btn text-gray-500 font-semibold p-2" data-priority="LOW">
+          <span class="circle mr-2"></span>
+          Low
+        </button>
+    </div>      
+  
+    <!-- Status Dropdown -->
+    <div class="mt-2 flex gap-4 w-full">
+        <div id="status-dropdown" class="basis-[20%] cursor-pointer text-gray-700 border-b-2 border-green-500 rounded px-4 py-2 relative">
+            <div id="status-display" class="text-gray-700 w-max">Status</div>
+            <ul id="status-options" class="absolute hidden top-full left-0 bg-white border-2 border-green-500 rounded w-max mt-1 z-10">
+                <li class="dropdown-status py-2 px-4 cursor-pointer flex items-center" data-status="IN_PROGRESS">
+                    <i class="fas fa-spinner fa-spin mr-2"></i> In Progress
+                </li>
+                <li class="dropdown-status py-2 px-4 cursor-pointer flex items-center" data-status="ON_HOLD">
+                    <i class="fas fa-pause mr-2"></i> On Hold
+                </li>
+                <li class="dropdown-status py-2 px-4 cursor-pointer flex items-center" data-status="COMPLETED">
+                    <i class="fas fa-check-circle mr-2"></i> Completed
+                </li>
+                <li class="dropdown-status py-2 px-4 cursor-pointer flex items-center" data-status="CANCELLED">
+                    <i class="fas fa-times-circle mr-2"></i> Cancelled
+                </li>
+            </ul>
+        </div>
+        <div id="production-dropdown" class="flex-1 cursor-pointer text-gray-700 border-b-2 border-green-500 rounded px-4 py-2 relative">
+            <div id="production-display" class="text-gray-700">Select Production Data</div>
+            <ul id="production-options" class="absolute top-full left-0 hidden bg-white border-2 border-green-500 rounded w-full mt-1 z-10 max-h-[200px] overflow-auto scrollbar-thin scrollbar-thumb-green-700 scrollbar-track-green-200">
+                <!-- Production data will be appended here -->
+            </ul>
+        </div>
+    </div>
+
+  
+  
+    <!-- Progress Bar Section -->
+    <div class="mt-6 w-full relative">
+        <h4 class="text-xl font-bold text-green-700">PROGRESS BAR</h4>
+        <div class="relative w-full bg-gray-200 rounded-full mt-2">
+        <div id="progress-bar-fill" class="bg-gray-400 py-2 rounded-full flex items-center" style="width: 0%;">
+            <span id="progress-percentage" class="text-xs font-bold text-black ml-4">0%</span>
+        </div>
+        <!-- Progress tags -->
+        <div id="progress-tags" class="absolute top-full mt-1 border-t border-green-600 w-full h-full flex justify-between text-xs text-gray-700">
+            <div class="tag-start font-semibold text-yellow-500 text-xl"><i class="fas fa-play-circle"></i></div>
+            <div class="tag-completed font-semibold text-green-600 text-xl"><i class="fas fa-check-circle"></i></div>
+        </div>
+        </div>
+    </div>
+
+    <button id="add-quality-check" class="absolute bottom-[10%] hidden bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mt-4">+ Add Quality Check</button>
+</div>  
+
+<script>
+    $('.priority-btn').on('click', function() {
+        $('#add-quality-check').addClass('hidden').attr('data-job-id', '');
+        // Remove 'selected' class from all buttons
+        $('.priority-btn').removeClass('selected');
+      
+        // Add 'selected' class to the clicked button
+        $(this).addClass('selected');
+      
+        // Enable the status dropdown now that priority is selected
+        $('#status-display').text('Status');
+      
+        // Reset the production dropdown
+        $('#production-display').text('Select Production Data');
+        $('#production-options').empty(); // Clear the production options
+      
+        // Reset the progress bar
+        const $progressBar = $("#progress-bar-fill");
+        const $progressTags = $("#progress-tags");
+        $progressBar.css("width", "0%").removeClass("bg-red-500 bg-gray-400 bg-green-500 glow-effect").addClass("bg-gray-400");
+        $("#progress-percentage").text("0%");
+       // Keep Start and Completed tags, clear the dynamically added tags
+        const startTag = $progressTags.find('.tag-start');
+        const completedTag = $progressTags.find('.tag-completed');
+
+        // Remove all tags except Start and Completed
+        $progressTags.empty().append(startTag).append(completedTag);
+      
+        // Optionally, you can send the selected priority via AJAX here
+        const priority = $(this).data('priority');
+        console.log('Selected priority:', priority);
+    });
+    
+
+    // Disable status dropdown if no priority is selected
+    $('#status-dropdown').on('click', function() {
+        if ($('.priority-btn.selected').length === 0) {
+            $('#status-dropdown').css('border-color', '#E11D48');
+            setTimeout(function () {
+              $('#status-dropdown').css("border-color", "rgb(34, 197, 94)"); // Reset to green
+            }, 3000); // Delay in milliseconds (3 seconds)
+            return; // Do nothing if no priority is selected
+        }
+        // Toggle visibility of status options
+        $('#status-options').toggleClass('hidden');
+    });
+    
+    // Disable production dropdown if no status is selected
+    $('#production-dropdown').on('click', function() {
+        if ($('#status-display').text() === 'Status') {
+            $('#production-dropdown').css('border-color', '#E11D48');
+            setTimeout(function () {
+              $('#production-dropdown').css("border-color", "rgb(34, 197, 94)"); // Reset to green
+            }, 3000); // Delay in milliseconds (3 seconds)
+            return; // Do nothing if no status is selected
+        }
+        // Toggle visibility of production options
+        $('#production-options').toggleClass('hidden');
+    });
+
+    // Close the dropdowns if the user clicks outside of them
+    $(document).on('click', function(e) {
+        if (!$(e.target).closest('#status-dropdown').length && !$(e.target).closest('#production-dropdown').length) {
+            $('#status-options').addClass('hidden');
+            $('#production-options').addClass('hidden');
+        }
+    });
+    
+    // Hide the status options dropdown when a status item is selected
+    $('.dropdown-status').on('click', function() {
+        const status = $(this).data('status');
+        const priority = $('.priority-btn.selected').data('priority');
+      
+        // Update the status display text
+        $('#status-display').text($(this).text());
+        $('#production-display').text('Select Production Data');
+        $('#production-options').empty(); // Clear the production options
+      
+        // Filter production data by status and priority
+        $.ajax({
+            url: '/filter/production-by-status/',
+            method: 'GET',
+            data: { status: status, priority: priority },
+            success: function(response) {
+                console.log(response);
+                // Update the production data dropdown with filtered results
+                updateProductionDropdown(response);
+            }
+        });
+    });
+
+    function updateProductionDropdown(data) {
+        // Populate the production data dropdown based on filtered results
+        $('#production-options').empty();
+        data.productions.forEach(function(production) {
+            $('#production-options').append('<li class="dropdown-production py-2 px-4 cursor-pointer" data-id="' + production.id + '">' + production.name + '</li>');
+        });
+    }
+
+    // Show the mother fucking Progress Bar
+    $(document).on("click", ".dropdown-production", function () {
+        const productionId = $(this).data("id");
+        $("#production-display").text($(this).text());
+        $("#production-options").addClass("hidden");
+        
+        // Fetch quality checks for selected production
+        $.ajax({
+          url: `/fetch/quality-checks/${productionId}/`,
+          method: "GET",
+          success: function (response) {
+            updateProgressBar(response.quality_checks, response.job_id);
+            $('#add-quality-check').attr('data-job-id', productionId);
+            if ($('#add-quality-check').hasClass('hidden')){
+              $('#add-quality-check').toggleClass('hidden');
+            }
+            $(document).on("click", "#progress-tags button", function() {
+                $('#quality-control-form').removeClass('hidden');
+                $('#no-quality-checks-message').addClass('hidden');
+                const jobID = $(this).data("job-id");
+                const parameter = $(this).data("parameter");
+            
+                // Trigger double-click on the Production Tracking and Quality Control tabs
+                const $productionTrackingTab = $('.production-tab[data-tab="production-tracking"]');
+                const $qualityControlTab = $('.production-tab[data-tab="quality-control"]');
+                $productionTrackingTab.trigger('click');
+                $qualityControlTab.trigger('click');
+            
+                // Populate the Quality Control form with the parameter
+                populateQualityControlForm(jobID, parameter); 
+            });
+          }
+        });
+    });
+
+
+    function populateQualityControlForm(jobID, parameter) {
+      $.ajax({
+          url: `/get_quality_check/${jobID}/${parameter}/`, // Define your Django URL
+          method: 'GET',
+          success: function(data) {
+              // Update the Quality Control form with data from the server
+              $('#quality-control-form input[name="job-id"]').val(jobID);
+              $('#quality-control-form input[name="parameter"]').val(data.parameter);
+              $('#quality-control-form select[name="result"]').val(data.result);
+              $('#quality-control-form textarea[name="notes"]').val(data.notes);
+          }
+      });
+    }
+
+    //Add quality check button
+    $('#add-quality-check').on('click', function() {
+        $('#quality-control-form').removeClass('hidden');
+        $('#no-quality-checks-message').addClass('hidden');
+        // Trigger double-click on the Production Tracking and Quality Control tabs
+        const $productionTrackingTab = $('.production-tab[data-tab="production-tracking"]');
+        const $qualityControlTab = $('.production-tab[data-tab="quality-control"]');
+        $productionTrackingTab.trigger('click');
+        $qualityControlTab.trigger('click');
+
+        // Clear the Quality Control form
+        const jobID = $(this).data('job-id');
+        $('#quality-control-form input[name="job-id"]').val(jobID);
+        $('#quality-control-form input[name="parameter"]').val('');
+        $('#quality-control-form select[name="result"]').val('');
+        $('#quality-control-form textarea[name="notes"]').val('');
+    });
+
+    function updateProgressBar(qualityChecks, jobID) {
+      const $progressBar = $("#progress-bar-fill");
+      const $progressTags = $("#progress-tags");
+  
+      // Reset progress bar and tags
+      $progressBar.css("width", "0%")
+          .removeClass("bg-red-500 bg-yellow-500 bg-gray-400 glow-effect")
+          .addClass("bg-green-500");
+      $("#progress-percentage").text("0%");
+      $progressTags.empty();
+      
+      $progressBar.parent().removeClass("border-2 border-yellow-500");
+      // Check if there are any #progress-tags
+      if (qualityChecks.length === 0) {
+          console.log(qualityChecks);
+          $progressBar.parent().addClass("border-2 border-yellow-500");
+          $("#progress-percentage").text("0%");
+          return; // Prevent further progress bar updates
+      }
+  
+      // Add start tag
+      $progressTags.append('<div class="tag-start font-semibold text-yellow-500 text-xl"><i class="fas fa-play-circle"></i></div>');
+  
+      // Separate quality checks into pass, fail, and on_progress
+      const passChecks = qualityChecks.filter(check => check.result === "pass");
+      const onProgressChecks = qualityChecks.filter(check => check.result === "on_progress");
+      const failChecks = qualityChecks.filter(check => check.result === "fail");
+  
+      // Combine checks with the desired order
+      const orderedChecks = [...passChecks, ...onProgressChecks, ...failChecks];
+  
+      // Add quality check tags
+      const totalSteps = orderedChecks.length + 2; // Start + Completed + Checks
+      orderedChecks.forEach((check, index) => {
+          const position = ((index + 1) / (totalSteps - 1)) * 100;
+          const additionalClass = check.result === "fail" ? "text-red-500" : check.result === "on_progress" ? "text-yellow-500" : "text-green-500";
+          $progressTags.append(
+              `<button class="absolute top-0 flex items-center gap-1 text-blue-500 hover:text-blue-700" style="left: ${position - 5}%" data-job-id="${jobID}" data-parameter="${check.parameter}">
+                  <i class="fas fa-edit text-base"></i> <span class="font-semibold text-sm ${additionalClass}">${check.parameter}</span>
+              </button>`
+          );
+      });
+  
+      // Add completed tag
+      $progressTags.append('<div class="tag-completed font-semibold text-green-600 text-xl"><i class="fas fa-check-circle"></i></div>');
+  
+      // Simulate progress
+      let progress = 0;
+      let currentStep = 0;
+      const interval = setInterval(() => {
+          const currentCheck = orderedChecks[currentStep];
+  
+          if (currentCheck) {
+              progress += 100 / (totalSteps - 1);
+              $progressBar.css("width", `${progress}%`);
+  
+              if (currentCheck.result === "on_progress") {
+                  // Stop filling and display "Job In Progress"
+                  $progressBar.removeClass("bg-green-500 bg-red-500").addClass("bg-yellow-500");
+                  $("#progress-percentage").text("Job In Progress");
+                  clearInterval(interval);
+                  return;
+              } else if (currentCheck.result === "fail") {
+                  // Stop filling on failure
+                  $progressBar.removeClass("bg-green-500 bg-yellow-500").addClass("bg-red-500");
+                  $("#progress-percentage").text(`${Math.floor(progress)}% - Stopped at Failure`);
+                  clearInterval(interval);
+                  return;
+              } else {
+                  // Update for pass checks
+                  $progressBar.removeClass("bg-yellow-500 bg-red-500").addClass("bg-green-500");
+                  $("#progress-percentage").text(`${Math.floor(progress)}%`);
+              }
+  
+              currentStep++;
+          } else {
+              // Completed
+              clearInterval(interval);
+              $progressBar.css("width", "100%").addClass("glow-effect");
+              $("#progress-percentage").text("100% - Completed");
+          }
+      }, 1000);
+    }
+  
+  
+      
+    function fetchProductionJobs() {
+        $.ajax({
+          url: "/fetch/production-jobs/",
+          method: "GET",
+          success: function (response) {
+            const jobs = response.jobs;
+            const $dropdown = $("#production-options");
+            $dropdown.empty();
+            jobs.forEach(job => {
+              $dropdown.append(
+                `<li class="dropdown-status py-2 px-4 cursor-pointer" data-id="${job.id}">${job.name}</li>`
+              );
+            });
+            $dropdown.removeClass("hidden");
+          }
+        });
+    } 
+</script>

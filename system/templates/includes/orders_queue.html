@@ -1,0 +1,236 @@
+<!-- Order Queue Content -->
+<div id="order-list" class="sortable space-y-2 pt-4">
+  {% for order in pending_progress %}
+    <div class="order-item-queue flex flex-col space-y-2 px-4 py-2 border border-green-900 bg-white rounded-lg shadow-sm cursor-move relative" data-order-id="{{ order.order_id }}" data-order-queue="{{ order.order_queue}}">
+      <!-- Circular Order Queue Number -->
+      <div class="absolute top-2 left-1 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center text-white rounded-full font-semibold w-8 h-8 text-xs
+          {% if order.status == 'PENDING' %}bg-yellow-700 {% else %}bg-gray-700{% endif %}">
+        {{ order.order_queue }}
+      </div>
+
+      <div class="flex items-center justify-between mt-6">
+        <span id="service-selected-queue" class="font-medium text-lg">{{ order.service.name }}</span>
+        <span id="deadline-queue" class="text-sm text-red-900">{{ order.deadline }}</span>
+      </div>
+      <div class="flex items-center justify-between">
+        <div class="flex-1 flex items-center space-x-2">
+          <i class="fas fa-user text-blue-900"></i>
+          <span id="customer-name-queue" class="font-medium">{{ order.customer.name }}</span>
+        </div>
+        <div class="basis-[35%] flex items-center space-x-2">
+          <i class="fas fa-clock text-yellow-500"></i>
+          <span id="order-status-queue" class="text-sm">{{ order.status }}</span>
+        </div>
+      </div>
+      <!-- hidden div to get other data to not use an ajax and view for this shit  -->
+      <span id="jobs-specifications-queue" class="hidden">{{order.job_specifications}}</span>
+      <span id="date-created-queue" class="hidden">{{order.created_at}}</span>
+    </div>
+  {% empty %}
+    <p>No orders found.</p>
+  {% endfor %}
+</div>
+
+<!-- Add a new class for pagination controls -->
+<div class="my-4 pp-pagination-controls w-full bg-gray-50 sticky top-0 flex justify-center items-center">
+  <div class="text-base flex items-center space-x-4">
+    {% if pending_progress.has_previous %}
+      <a href="{% url 'get_paginated_orders' %}?page_pp=1" class="text-green-700 flex items-center hover:underline">First</a>
+      <a href="{% url 'get_paginated_orders' %}?page_pp={{ pending_progress.previous_page_number }}" class="text-green-700 flex items-center hover:underline">Previous</a>
+    {% else %}
+      <span class="text-gray-400 flex items-center">First</span>
+      <span class="text-gray-400 flex items-center">Previous</span>
+    {% endif %}
+
+    <span class="mx-4 text-gray-600 font-medium">Page {{ pending_progress.number }}/{{ pending_progress.paginator.num_pages }}</span>
+
+    {% if pending_progress.has_next %}
+      <a href="{% url 'get_paginated_orders' %}?page_pp={{ pending_progress.next_page_number }}" class="text-green-700 flex items-center hover:underline">Next</a>
+      <a href="{% url 'get_paginated_orders' %}?page_pp={{ pending_progress.paginator.num_pages }}" class="text-green-700 flex items-center hover:underline">Last</a>
+    {% else %}
+      <span class="text-gray-400 flex items-center">Next</span>
+      <span class="text-gray-400 flex items-center">Last</span>
+    {% endif %}
+  </div>
+</div>
+
+{% comment %} Modal to Display Order Details {% endcomment %}
+{% include 'includes/orders_modal.html' with modal="queue"%}
+
+<script>
+  $(document).ready(function () {
+    // Function to display the overlay message
+    function displayMessageOverlay(operation_state, message, operation_name, name_color) {
+      const backgroundColor = operation_state === 'allowed' ? 'bg-green-500' : 'bg-red-900';
+      let operationColor = name_color == 0 ? 'text-green-400' : name_color == 1 ? 'text-red-700': 'text-yellow-400';
+  
+      const overlay = $(`<div class="fixed top-0 left-0 right-0 ${backgroundColor} text-white text-center p-3 z-50 transition-transform transform -translate-y-full" id="message-overlay"></div>`);
+      overlay.append(message + ` <span class="font-semibold ${operationColor}"> ${operation_name}</span>`);
+    
+      // Append the overlay to the body
+      $('body').append(overlay);
+    
+      // Small delay before showing the overlay
+      setTimeout(function() {
+          overlay.removeClass('-translate-y-full').addClass('translate-y-0');
+      }, 100);
+    
+      // Hide the overlay after 3 seconds
+      setTimeout(function() {
+          overlay.removeClass('translate-y-0').addClass('-translate-y-full');
+          setTimeout(function() {
+              overlay.remove();
+          }, 500); // Remove the overlay after the sliding animation
+      }, 3000); // Show the message for 3 seconds
+    }
+
+    function checkSuperuser(callback) {
+      $.ajax({
+        url: "{% url 'verify_superuser' %}", // Django URL for verifying superuser
+        type: "GET",
+        headers: { "X-Requested-With": "XMLHttpRequest" },
+        success: function(response) {
+          // Callback with superuser status
+          callback(response.is_superuser);
+        },
+        error: function(xhr, status, error) {
+          console.error("Failed to verify superuser status:", error);
+          callback(false); // Call back with false if there's an error
+        },
+      });
+    }  
+
+    $("#order-list").sortable({
+      placeholder: "sortable-placeholder",
+      items: ".order-item-queue",
+      cursor: "drag",
+      opacity: 0.8,
+      containment: "parent",
+      update: function (event, ui) {
+          const order = [];
+          $(".order-item-queue").each(function () {
+            // Only add the order if the array length is less than 5
+            if (order.length < 5) {
+                order.push($(this).data("order-id"));
+            }
+          });
+          // Check if the order array exceeds 5
+          if (order.length > 5) {
+              order.length = 5; // Truncate the array to a maximum of 5 items
+          }
+          console.log(order);
+  
+          // Before sending, check if the user is a superuser
+          checkSuperuser(function(isSuperuser) {
+              if (isSuperuser) {
+                  // Send the new order to the server via AJAX
+                  $.ajax({
+                      url: "{% url 'update_order_queue' %}",  // Django URL for updating order queue
+                      method: "POST",
+                      data: {
+                          order: order,
+                          csrfmiddlewaretoken: "{{ csrf_token }}",
+                          page_pp: {{pending_progress.number}},
+                      },
+                      success: function (response) {
+                        $('#order-queue').html(response.orders_queue);
+                          console.log("Order updated successfully.");
+                          // You can add any success message or UI change here
+                      },
+                      error: function (xhr, status, error) {
+                          console.error("Error updating order:", error);
+                          alert("Error updating order. Please try again.");
+                      }
+                  });
+              } else {
+                // Refresh the #order-queue content
+                $.ajax({
+                    url: "{% url 'refresh_order_queue' %}", // Django URL to refresh order queue
+                    method: "GET",
+                    data: {page_pp: {{pending_progress.number}}},
+                    success: function (response) {
+                        $('#order-queue').html(response.orders_queue);
+                        displayMessageOverlay('', "You are not authorized to ", "re-order the orders.");
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error refreshing order queue:", error);
+                        displayMessageOverlay("Unable to refresh order queue. Please try again.", "error");
+                    }
+                });
+            }
+          });
+      },
+    });
+
+    
+    // Style the placeholder
+    $("#order-list").sortable("option", "placeholder", {
+      element: function () {
+        return $("<div class='order-item-queue bg-gray-200 h-16 rounded-md'></div>")[0];
+      },
+      update: function () {
+        return;
+      },
+    });
+  });
+</script>
+
+<style>
+  @keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+  }
+
+  .bounce-effect {
+      animation: bounce 0.8s ease-in-out infinite;
+  }
+
+  #message-overlay {
+    transition: transform 0.5s ease-in-out;
+  }
+
+  .-translate-y-full {
+      transform: translateY(-100%);
+  }
+
+  .translate-y-0 {
+      transform: translateY(0);
+  }
+
+
+  .sortable-placeholder {
+    background-color: #f3f4f6;
+    border: 2px dashed #d1d5db;
+    height: 80px;
+  }
+</style>
+
+<script>
+  $(document).ready(function () {
+      $('.pp-pagination-controls').on('click', 'a', function (event) {
+          event.preventDefault(); // Prevent default navigation behavior
+  
+          const url = $(this).attr('href'); // Get the href attribute of the clicked link
+  
+          $.ajax({
+              url: url,
+              type: 'GET',
+              headers: { 'X-Requested-With': 'XMLHttpRequest' },
+              success: function (data) {
+                  if (data.html) {
+                      $('#order-queue').html(data.html); // Update the orders container
+                  }
+              },
+              error: function (xhr, status, error) {
+                  console.error('Error fetching pagination data:', error);
+              }
+          });
+      });
+  });
+</script>
+
+

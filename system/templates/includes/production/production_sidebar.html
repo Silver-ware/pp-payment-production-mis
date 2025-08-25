@@ -1,0 +1,33 @@
+{% for order in orders %}
+    {% if order.status == "PENDING" %}
+    <li 
+        class="order-item flex flex-col space-y-2 px-4 py-2 border border-green-900 bg-white rounded-lg shadow-sm cursor-move relative"
+        data-order-id="{{ order.order_id }}"
+        data-customer="{{ order.customer }}"
+        data-service="{{ order.service }}"
+        data-deadline="{{ order.deadline }}"
+        draggable="true">
+        <div class="absolute top-2 left-1 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center text-white rounded-full font-semibold w-8 h-8 text-xs
+            {% if order.status == 'PENDING' %}bg-yellow-700 {% else %}bg-gray-700{% endif %}">
+            {{ order.order_queue }}
+        </div>
+
+        <div class="flex items-center justify-between mt-6">
+        <span class="font-medium text-base">{{ order.service.name }}</span>
+        <span class="text-sm text-red-900">{{ order.deadline }}</span>
+        </div>
+        <div class="flex items-center justify-between">
+        <div class="flex-1 flex items-center space-x-2">
+            <i class="fas fa-user text-blue-900"></i>
+            <span class="font-medium">{{ order.customer.name }}</span>
+        </div>
+        <div class="basis-[35%] flex items-center space-x-2">
+            <i class="fas fa-clock text-yellow-500"></i>
+            <span class="text-sm">{{ order.status }}</span>
+        </div>
+        </div>
+        <span class="hidden">{{ order.job_specifications }}</span>
+        <span class="hidden">{{ order.created_at }}</span>
+    </li>
+    {% endif %}
+{% endfor %}

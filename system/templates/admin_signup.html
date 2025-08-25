@@ -1,0 +1,170 @@
+{% load static tailwind_tags %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrator Registration</title>
+    {% tailwind_css %}
+  </head>
+  <body>
+    <div class="flex justify-center h-screen">
+      <div class="sm:mx-auto sm:w-full sm:max-w-sm flex flex-col items-center justify-center gap-8 relative overflow-y-hidden">
+        <h2 class="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">CREATE AN ADMINISTRATOR ACCOUNT</h2>
+        <img src="{% static 'simg/admin.png'%}" class="w-2/4"/>
+      </div>
+
+      <div class="w-[60%] overflow-y-scroll py-8 pr-2 ">
+      <form class="w-full flex align-center flex-col border-x px-8 " action="" method="POST">
+        {% csrf_token %}  
+        <div class="space-y-12 border-t pt-4">
+          <div class="border-b border-gray-900/10 pb-12">
+            <h2 class="text-base font-semibold leading-7 text-gray-900">Admin Account</h2>
+            <p class="mt-1 text-sm leading-6 text-gray-600">Fill out the required fields to set up the system.</p>
+      
+            <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+              <div class="sm:col-span-4">
+                <label for="username" class="block text-sm font-medium leading-6 text-gray-900">Username :</label>
+                <div class="my-2">
+                  <div class="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-green-500 sm:max-w-md">
+                    <span class="flex select-none items-center pl-3 text-gray-500 sm:text-sm">ppppmis/account/</span>
+                    <input type="text" name="username" id="username" autocomplete="username" class="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6" placeholder="janesmith">
+                  </div>
+                </div>
+                {% if form.errors %}
+                    {% for error in form.errors %}
+                        <p class="font-bold text-red-500 text-sm mt-1">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+                {% if form.username.errors %}
+                    {% for error in form.username.errors %}
+                        <p class="font-bold text-red-500 text-sm mt-1">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+                <label for="password" class="block text-sm font-medium leading-6 text-gray-900">Password :</label>
+                <div class="mt-2">
+                  <div class="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-green-500 sm:max-w-md">
+                    <input type="password" name="password1" id="id_password1" class="block flex-1 border-0 bg-transparent py-1.5 pl-3 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6">
+                  </div>
+                </div>
+                <label for="password" class="block text-sm font-medium leading-6 text-gray-900">Re-type Password :</label>
+                <div class="mt-2">
+                  <div class="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-green-500 sm:max-w-md">
+                    <input type="password" name="password2" required="" id="id_password2" class="block flex-1 border-0 bg-transparent py-1.5 pl-3 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6">
+                  </div>
+                </div>
+                {% if form.password2.errors %}
+                    {% for error in form.password2.errors %}
+                        <p class="font-bold text-red-500 text-sm mt-1">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+              </div>
+            </div>
+          </div>
+      
+          <div class="border-b border-gray-900/10 pb-12">
+            <h2 class="text-base font-semibold leading-7 text-gray-900">Personal Information</h2>
+            <p class="mt-1 text-sm leading-6 text-gray-600">Use a permanent email address where you can receive mail.</p>
+      
+            <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+              <div class="sm:col-span-3">
+                <label for="first-name" class="block text-sm font-medium leading-6 text-gray-900">First name :</label>
+                <div class="mt-2">
+                  <input type="text" name="first_name" id="first-name" autocomplete="given-name" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-500 sm:text-sm sm:leading-6">
+                </div>
+              </div>
+      
+              <div class="sm:col-span-3">
+                <label for="last-name" class="block text-sm font-medium leading-6 text-gray-900">Last name :</label>
+                <div class="mt-2">
+                  <input type="text" name="last_name" id="last-name" autocomplete="family-name" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-500 sm:text-sm sm:leading-6">
+                </div>
+              </div>
+      
+              <div class="sm:col-span-4">
+                <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Email address :</label>
+                <div class="mt-2">
+                  <input id="email" name="email" type="email" autocomplete="email" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-500 sm:text-sm sm:leading-6">
+                </div>
+                {% if form.email.errors %}
+                    {% for error in form.email.errors %}
+                        <p class="font-bold text-red-500 text-sm mt-1">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+              </div>
+      
+            </div>
+          </div>
+
+          <div class="border-b border-gray-900/10 pb-12">
+            <h2 class="text-base font-semibold leading-7 text-gray-900">Print Shop / Branch Address</h2>
+            <p class="mt-1 text-sm leading-6 text-gray-600">Input the address of the printing shop.</p>
+            <div class="mt-8 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+              <div class="mt-2 col-span-full">
+                <label for="street-address" class="block text-sm font-medium leading-6 text-gray-900">Street / Barangay :</label>
+                <div class="mt-2">
+                  <input type="text" name="street-address" id="street-address" autocomplete="street-address" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-500 sm:text-sm sm:leading-6">
+                </div>
+              </div>
+      
+              <div class="sm:col-span-2 sm:col-start-1">
+                <label for="city" class="block text-sm font-medium leading-6 text-gray-900">City / Municipality :</label>
+                <div class="mt-2">
+                  <input type="text" name="city" id="city" autocomplete="address-level2" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-500 sm:text-sm sm:leading-6">
+                </div>
+              </div>
+      
+              <div class="sm:col-span-2">
+                <label for="region" class="block text-sm font-medium leading-6 text-gray-900">State / Province :</label>
+                <div class="mt-2">
+                  <input type="text" name="region" id="region" autocomplete="address-level1" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-500 sm:text-sm sm:leading-6">
+                </div>
+              </div>
+              <div class="sm:col-span-2">
+                <label for="postal-code" class="block text-sm font-medium leading-6 text-gray-900">ZIP / Postal code :</label>
+                <div class="mt-2">
+                  <input type="text" name="postal-code" id="postal-code" autocomplete="postal-code" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-500 sm:text-sm sm:leading-6">
+                </div>
+              </div>
+            </div>
+          </div>
+      
+          <div class="border-b border-gray-900/10 pb-12">
+            <h2 class="text-base font-semibold leading-7 text-gray-900">Previlliges</h2>
+            <p class="mt-1 text-sm leading-6 text-gray-600">Choose the scope of your admin privilleges</p>
+            <div class="mt-2 space-y-10">
+              <fieldset>
+                <div class="mt-2">
+                  <div class="flex items-center gap-x-3">
+                    <input id="push-everything" name="push-notifications" type="radio" class="h-4 w-4 border-gray-300 text-green-500 focus:ring-green-500" checked>
+                    <label for="push-everything" class="block text-sm font-medium leading-6 text-gray-900">Full Privillege</label>
+                  </div>
+                  <p class="indent-[28px] mb-2 text-sm leading-6 text-gray-600">Use for all authentications and other neccesary input in the database.</p>
+                  <div class="flex items-center gap-x-3">
+                    <input id="push-email" name="push-notifications" type="radio" class="h-4 w-4 border-gray-300 text-green-500 focus:ring-green-500" disabled>
+                    <label for="push-email" class="block text-sm font-medium leading-6 text-gray-900">Partial Privillege</label>
+                  </div>
+                  <p class="indent-[28px] mb-2 text-sm leading-6 text-gray-600">Use for high level authentications and start-up inputs only.</p>
+                  <div class="flex items-center gap-x-3">
+                    <input id="push-nothing" name="push-notifications" type="radio" class="h-4 w-4 border-gray-300 text-green-500 focus:ring-green-500" disabled>
+                    <label for="push-nothing" class="block text-sm font-medium leading-6 text-gray-900">Retain Privillege</label>
+                  </div>
+                  <p class="indent-[28px] mb-2 text-sm leading-6 text-gray-600">Use for account creation and minimal inputs only.</p>
+                </div>
+                <select name="role" class="hidden w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-500 sm:text-sm sm:leading-6" hidden>
+                  <option value=""></option>
+                </select>
+              </fieldset>
+            </div>
+          </div>
+        </div>
+      
+        <div class="mt-6 flex items-center justify-end gap-x-6">
+          <button type="button" class="text-sm font-semibold leading-6 text-gray-900">Cancel</button>
+          <button type="submit" class="rounded-md bg-green-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-500">Save</button>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,95 @@
+{% load static tailwind_tags %}
+
+<!DOCTYPE html>
+<html class="h-full">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    {% tailwind_css %}
+    <script src="{% static 'jquery/jquery-3.7.1.min.js' %}"></script>
+    <script src="{% static 'jquery/jquery-ui.js' %}"></script>
+  </head>
+  <body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="w-3/4 max-w-6xl bg-white shadow-lg rounded-lg overflow-hidden flex">
+        <!-- Left Section -->
+        <div class="w-1/2 bg-cover bg-center" style="background-image: url('https://via.placeholder.com/600x800');">
+            <div class="h-full flex flex-col justify-center items-center bg-black bg-opacity-50 text-white p-8">
+                <h1 class="text-4xl font-bold mb-4">Initial Setup</h1>
+                <p class="text-lg text-gray-200 text-center">
+                    Welcome! Complete the form to configure your application and get started.
+                </p>
+            </div>
+        </div>
+
+        <!-- Right Section -->
+        <div class="w-1/2 p-10">
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+
+                <!-- Application Name -->
+                <div>
+                    <label for="appName" class="block text-sm font-medium text-gray-600">Application Name</label>
+                    <input 
+                        type="text" 
+                        id="appName" 
+                        name="app_name" 
+                        class="block w-full mt-1 p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Enter application name" 
+                        required
+                    >
+                </div>
+
+                <!-- Administrator Name -->
+                <div>
+                    <label for="adminName" class="block text-sm font-medium text-gray-600">Administrator Name</label>
+                    <input 
+                        type="text" 
+                        id="adminName" 
+                        name="admin_name" 
+                        class="block w-full mt-1 p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Enter your name" 
+                        required
+                    >
+                </div>
+
+                <!-- Email Address -->
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-600">Email Address</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        class="block w-full mt-1 p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Enter your email address" 
+                        required
+                    >
+                </div>
+
+                <!-- Password -->
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-600">Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        class="block w-full mt-1 p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Create a secure password" 
+                        required
+                    >
+                </div>
+
+                <!-- Submit Button -->
+                <div>
+                    <button 
+                        type="submit" 
+                        class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-md transition"
+                    >
+                        Save & Continue
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,217 @@
+<!-- Service Form -->
+<div id="service-input-section">
+    <div>
+        <label for="name" class="mb-2 block text-sm font-semibold">
+            Service Name: <span class="text-red-500">*</span>
+        </label>
+        <div class="input relative">
+            <div class="absolute top-0 left-0 h-full flex items-center justify-center w-12">
+                <i class="fas fa-concierge-bell text-lg text-green-600 transition-all duration-600 ease-in-out"></i> 
+            </div>
+            <input type="text" id="name" name="name" value="{{ service_form.name.value|default:'' }}"
+                class="pl-12 w-full border rounded-lg focus:ring-green-500 focus:border-green-500"
+                placeholder="Enter a Service Name." required>
+        </div>
+        {% for error in service_form.name.errors %}
+            <p class="text-red-500 text-sm">{{ error }}</p>
+        {% endfor %}
+    </div>
+    
+    <div class="mt-3">
+        <label for="customization_options" class="mb-2 block text-sm font-semibold">
+            Customization Options: <span class="text-red-500">*</span>
+        </label>
+        <div class="input relative">
+            <div class="absolute top-0 left-0 h-full flex items-center justify-center w-12">
+                <i class="fas fa-sliders-h text-lg text-green-600 transition-all duration-600 ease-in-out"></i> 
+            </div>
+            <input id="customization_options" name="customization_options" 
+               class="w-full border rounded-lg focus:ring-green-500 focus:border-green-500" required/>
+        </div>
+        <p class="text-gray-500 text-sm my-3">Add multiple customization options (e.g., Color, Size, Material).</p>
+        {% for error in service_form.customization_options.errors %}
+            <p class="text-red-500 text-sm">{{ error }}</p>
+        {% endfor %}
+    </div>
+    
+    <div class="flex justify-between">
+        <button type="submit" name="add_service"
+                class="px-6 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700">
+            <i class="fas fa-plus-circle"></i> Add Service
+        </button>
+        <button name="save_service" id="confirm-services"
+                class="px-6 py-2 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600">
+            <i class="fas fa-check-double"></i> Confirm Services
+        </button>
+    </div>    
+
+  {% comment %} Reload the scripts after reverting {% endcomment %}
+  {% if reload_script %}
+    
+    {% if unlocked %}
+        <script>
+            $(document).ready(function () {
+            // Get the current page identifier
+            var pageId = window.location.pathname;
+
+            // Check if the animation has been performed on this specific page in this session
+            if (sessionStorage.getItem(pageId + '_animationComplete')) {
+                // Run the animation if it's not already done
+                $("#lock").fadeOut(1000, function () {
+                $(this).remove(); // Remove the lock div after fade out
+                $('#next').css('transition', 'transform 0.5s ease') 
+                    .css('transform', 'scale(1.3)') 
+                    .delay(500) // Wait for the transition to finish
+                    .queue(function (next) {
+                    $(this).css('transform', 'scale(1)'); // Return to original size
+                    next();
+                    });
+        
+                // Mark the animation as completed for this page
+                sessionStorage.setItem(pageId + '_animationComplete', 'true');
+                });
+            }else{
+                alert("No animation!")
+                $("#lock").remove(); 
+            }
+            });
+        </script>
+    {% else %} 
+        {% comment %} Reset the Flag {% endcomment %}
+        <script>
+            $(document).ready(function () {
+            // Get the current page identifier
+            var pageId = window.location.pathname;
+            sessionStorage.setItem(pageId + '_animationComplete', 'false');
+            });
+        </script>           
+    {% endif %}
+
+    <script>
+        $(document).ready(function () {
+        let tagify; // Declare Tagify variable globally to manage its state
+        const customizationInputSelector = "#customization_options";
+    
+        // Function to initialize or reinitialize Tagify
+        function initializeTagify() {
+            const customizationInput = document.querySelector(customizationInputSelector);
+    
+            if (customizationInput) {
+                // Destroy existing Tagify instance, if any
+                if (tagify) {
+                    console.log("Destroying existing Tagify instance...");
+                    tagify.destroy();
+                    tagify = null;
+                }
+    
+                // Create a new Tagify instance
+                console.log("Initializing new Tagify instance...");
+                tagify = new Tagify(customizationInput, {
+                    enforceWhitelist: false,
+                });
+                
+            }
+        }
+    
+        // Initialize Tagify on page load
+        initializeTagify();
+        
+        function serializeTagifyData(tagifyInstance) {
+            // Get the tag values and serialize them as a list of strings
+            const tagValues = tagifyInstance.value.map(tag => tag.value);
+            return JSON.stringify(tagValues);  // Return as a stringified list
+        }
+    
+        function getCSRFToken() {
+            return document.querySelector('[name=csrfmiddlewaretoken]').value;
+        }
+        
+        $('button[name="save_service"]').on('click', function () {
+            const serviceNameInput = $('#name');
+            if (serviceNameInput.val().trim() === '') {
+                // Remove the 'required' attribute if the service name input is empty
+                const customizationInput = $('#customization_options');
+                serviceNameInput.removeAttr('required');
+                customizationInput.removeAttr('required');
+            }
+        });
+
+        // AJAX Form Submission Handling
+        $('form').off('submit').on('submit', function (event) {
+            event.preventDefault();
+            const customizationInput = document.querySelector("#customization_options");
+    
+            if (customizationInput && tagify) {
+                // Serialize tagify data before submitting
+                customizationInput.value = serializeTagifyData(tagify);
+            }
+            // Create the form data
+            var form = $(this);
+            var formData = form.serialize();  // Serialize the form data
+    
+            // Handle button-specific data (e.g., add_pricing_option)
+            var buttonName = event.originalEvent.submitter.name;
+            console.log("Button Name Pressed: " + buttonName);
+            formData += '&' + buttonName + '=1';  // Append the submitter button name to the form data
+    
+            console.log("Submitting form via AJAX with data:", formData);
+            
+            $.ajax({
+                type: 'POST',
+                url: '',
+                headers: { 'X-CSRFToken': getCSRFToken() },
+                data: formData,
+                success: function (response) {
+                    if (response.status === 'success') {
+                        if (response.add_service) {
+                            // Replace the form section and reinitialize Tagify
+                            $('#service-input-section').replaceWith(response.service_form_html);
+                            initializeTagify();
+    
+                            if (response.success_message) {
+                                const messagesDiv = $('#messages');
+                                console.log(messagesDiv);
+                                const alert = $('<div>')
+                                    .addClass('alert mx-10 px-4 py-2 text-green-800 bg-green-200 border border-green-300 rounded shadow-lg')
+                                    .text(response.success_message);
+                                messagesDiv.append(alert);
+                
+                                // Automatically fade out the message after 5 seconds
+                                setTimeout(() => alert.fadeOut(), 5000);
+                            }
+                        }
+                        if (response.confirm_services) {
+                            console.log("Confirm Services btn");
+                            $('#service-input-section').addClass('hidden');
+                            $('#service-tabs').replaceWith(response.service_tabs_html);
+                            const csrfToken = getCSRFToken(); // Assuming getCSRFToken fetches the token from the meta tag
+                            $('form').each(function () {
+                                if (!$(this).find('[name=csrfmiddlewaretoken]').length) {
+                                    $(this).prepend(`<input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">`);
+                                }
+                            });
+                            $('#service-tabs').removeClass('hidden');
+                        }
+                    } else if (response.status === 'error') {
+                        console.log("Erorr ajax operation");
+                        if (response.service_form_html) {
+                            // Replace the form section and reinitialize Tagify
+                            $('#service-input-section').replaceWith(response.service_form_html);
+                            initializeTagify();
+                        }
+                    }
+                },
+                error: function () {
+                    alert('Error processing the request.');
+                }
+            });
+        });
+        });    
+    </script>
+    <style>
+        .tagtify{
+          padding: 12px 12px 12px 48px;
+        }
+    </style>
+  {% endif %}
+</div>

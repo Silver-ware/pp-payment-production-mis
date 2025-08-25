@@ -1,0 +1,140 @@
+{% extends 'extends/setup_interface.html' %}
+
+{% block title %}
+  Supplier Information
+{% endblock %}
+
+{% block section_title %}
+  SUPPLIER INFORMATION
+{% endblock %}
+
+{% block section_des %} 
+  Store some supplier details in the database. Ensure you provide accurate contact information. 
+  Fields marked with <span class="font-bold text-red-500">*</span> are required.
+{% endblock %}
+
+{% block form_heading %} Add Supplier Data (optional){% endblock %}
+
+{% comment %} Setting variables that the parent utilizes {% endcomment %}
+{% block left_section_var %}
+  {% with prev_background="linear-gradient(to bottom right, #4b5563, #2e2e2e, #047857)" next_background="linear-gradient(to bottom right, #556b2f, #2b3f78, #2e2e2e)" %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock left_section_var %}
+
+{% block form_block %}
+  {% with form_id="supplier_form" next_url='customer_prerecords' prev=True prev_url='inventory_and_category' %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock %}
+
+{% block form_fields %}
+<div class="space-y-4 w-full">
+  <!-- Supplier Name and Contact Person in the same row -->
+  <div class="grid grid-cols-5 gap-4">
+    <div class="col-span-2">
+      <label for="supplier_name" class="block text-sm font-semibold text-gray-700">
+        <i class="fas fa-industry text-green-600"></i> Supplier Name: <span class="text-red-500">*</span>
+      </label>
+      <input type="text" id="supplier_name" name="supplier_name"
+             class="w-full mt-1 p-3 border rounded-lg focus:ring-green-500 focus:border-green-500"
+             placeholder="Enter supplier name" required>
+    </div>
+    <div class="col-span-3">
+      <label for="contact_person" class="block text-sm font-semibold text-gray-700">
+        <i class="fas fa-user text-green-600"></i> Contact Person:
+      </label>
+      <input type="text" id="contact_person" name="contact_person"
+             class="w-full mt-1 p-3 border rounded-lg focus:ring-green-500 focus:border-green-500"
+             placeholder="Enter contact person's name">
+    </div>
+  </div>
+
+  <!-- Phone Number and Email in the same row -->
+  <div class="grid grid-cols-2 gap-4">
+    <div>
+      <label for="phone_number" class="block text-sm font-semibold text-gray-700">
+        <i class="fas fa-phone-alt text-green-600"></i> Phone Number: <span class="text-red-500">*</span>
+      </label>
+      <input type="tel" id="phone_number" name="phone_number"
+             class="w-full mt-1 p-3 border rounded-lg focus:ring-green-500 focus:border-green-500"
+             placeholder="Enter phone number" required>
+      {% if form.contact_number.errors %}
+        <div class="error text-red-500">
+            {% for error in form.contact_number.errors %}
+                <p>{{ error }}</p>
+            {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+    <div>
+      <label for="email" class="block text-sm font-semibold text-gray-700">
+        <i class="fas fa-envelope text-green-600"></i> Email Address: <span class="text-red-500">*</span>
+      </label>
+      <input type="email" id="email" name="email"
+             class="w-full mt-1 p-3 border rounded-lg focus:ring-green-500 focus:border-green-500"
+             placeholder="Enter email address" required>
+      {% if form.email.errors %}
+        <div class="error text-red-500">
+            {% for error in form.email.errors %}
+                <p>{{ error }}</p>
+            {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Address Field -->
+  <div>
+    <label for="address" class="block text-sm font-semibold text-gray-700">
+      <i class="fas fa-map-marker-alt text-green-600"></i> Address:
+    </label>
+    <input type="text" id="address" name="address"
+              class="w-full mt-1 p-3 border rounded-lg focus:ring-green-500 focus:border-green-500"
+              placeholder="Enter supplier's address">
+  </div>
+
+  <!-- Additional Info -->
+  <div>
+    <label for="additional_info" class="block text-sm font-semibold text-gray-700">
+      <i class="fas fa-info-circle text-green-600"></i> Additional Information:
+    </label>
+    <textarea id="additional_info" name="additional_info" rows="1"
+              class="w-full mt-1 p-3 border rounded-lg focus:ring-green-500 focus:border-green-500"
+              placeholder="Enter any additional details about the supplier"></textarea>
+  </div>
+</div>
+
+<!-- Submit Button -->
+<div class="mt-8 flex justify-end">
+  <button type="submit" class="px-6 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500">
+    <i class="fas fa-save"></i> Save Supplier
+  </button>
+</div>
+{% endblock %}
+
+
+{% block messages %}
+  {% if messages %}
+  <div 
+    id="success-message" 
+    class="absolute bottom-6 left-10 z-50 px-4 py-2 text-green-800 bg-green-200 border border-green-300 rounded shadow-lg">
+    {% for message in messages %}
+      {{ message }}
+    {% endfor %}
+  </div>
+  {% endif %}
+  <script>
+    // Fade out the success message after 3 seconds
+    document.addEventListener('DOMContentLoaded', function () {
+      const successMessage = document.getElementById('success-message');
+      if (successMessage) {
+        setTimeout(() => {
+          successMessage.style.transition = 'opacity 0.5s ease';
+          successMessage.style.opacity = '0';
+          setTimeout(() => successMessage.remove(), 500); // Remove after fade-out
+        }, 3000); // 3 seconds delay before starting fade-out
+      }
+    });
+  </script>
+{% endblock messages %}

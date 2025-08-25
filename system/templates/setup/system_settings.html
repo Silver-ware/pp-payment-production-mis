@@ -1,0 +1,263 @@
+{% extends 'extends/setup_interface.html' %}
+
+{% block title %}
+  System Settings
+{% endblock %}
+
+{% block section_title %}
+  SYSTEM SETTINGS CONFIGURATION
+{% endblock %}
+
+{% block section_des %}
+  Adjust system-wide settings like currency, language, and SMTP configurations. <br> 
+  Fields marked with <span class="font-bold text-red-500">*</span> are required.
+{% endblock %}
+
+{% block form_heading %}
+  Configure System Settings
+{% endblock %}
+
+{% comment %} Setting variables that the parent utilize {% endcomment %}
+{% block left_section_var %}
+  {% with prev_background="linear-gradient(to bottom right, #2f2f2f, #0b1e31, #6b8e23)" next_background="linear-gradient(to bottom right, #2b6f57, #1b263b, #5c5c5c)" %}
+    {{block.super}}
+  {% endwith %}
+{% endblock left_section_var %}
+
+{% block form_block %}
+  {% with form_id="system_settings_form" other_form="True" submit_btn=True last_submit=True prev=True prev_url='customer_prerecords' %}
+    {{block.super}}
+  {% endwith %}
+{% endblock %}
+
+{% block form_fields %}
+  <div class="space-y-4 w-full">
+    <!-- Currency and Timezone on the same row -->
+    <div class="flex space-x-4">
+      <div class="flex-1">
+        <label for="currency" class="block text-sm font-semibold text-gray-700">
+          <i class="fas fa-dollar-sign text-green-600"></i> Currency: <span class="text-red-500">*</span>
+        </label>
+        <input type="text" id="currency" name="currency" value="{{ form.currency.value }}" 
+               class="placeholder:text-black pointer-events-none w-full mt-1 p-3 border-green-900 border-x-4 rounded-lg focus:ring-green-500 focus:border-green-500" 
+               placeholder="&#8369; PHP" value="&#8369; Pesos" tabindex="-1" readonly>
+      </div>
+
+      <div class="w-[60%]">
+        <label for="timezone" class="block text-sm font-semibold text-gray-700">
+          <i class="fas fa-clock text-green-600"></i> Timezone: <span class="text-red-500">*</span>
+        </label>
+        <input type="text" id="timezone" name="timezone" value="{{ form.timezone.value }}"
+               class="placeholder:text-black pointer-events-none w-full mt-1 p-3 border-green-900 border-x-4 rounded-lg focus:ring-green-500 focus:border-green-500"
+               placeholder="Philippines (GMT+8)" value="Philippines (GMT+8)" tabindex="-1" readonly>
+      </div>
+    </div>
+
+    <!-- Date format and Language on the same row -->
+    <div class="flex space-x-4">
+      <div class="w-1/3">
+        <label for="date_format" class="block text-sm font-semibold text-gray-700">
+          <i class="fas fa-calendar-alt text-green-600"></i> Date Format: <span class="text-red-500">*</span>
+        </label>
+        <input type="text" id="date_format" name="date_format" value="{{ form.date_format.value }}" 
+               class="placeholder:text-black pointer-events-none w-full mt-1 p-3 border-green-900 border-x-4 rounded-lg focus:ring-green-500 focus:border-green-500"
+               placeholder="mm/dd/yyyy" value="mm/dd/yyyy" tabindex="-1" readonly>
+      </div>
+
+      <div class="w-2/3">
+        <label for="language" class="block text-sm font-semibold text-gray-700">
+          <i class="fas fa-language text-green-600"></i> Language: <span class="text-red-500">*</span>
+        </label>
+        <input type="text" id="language" name="language" value="{{ form.language.value }}"
+               class="placeholder:text-black pointer-events-none w-full mt-1 p-3 border-green-900 border-x-4 rounded-lg focus:ring-green-500 focus:border-green-500"
+               placeholder="English (US)" value="English (US)" tabindex="-1" readonly>
+      </div>
+    </div>
+
+    <!-- SMTP Settings -->
+    <div>
+      <label for="smtp_server" class="block text-sm font-semibold text-gray-700">
+        <i class="fas fa-server text-green-600"></i> SMTP Server: <span class="text-red-500">*</span>
+      </label>
+      <input type="text" id="smtp_server" name="smtp_server"
+             class="placeholder:text-black pointer-events-none w-full mt-1 p-3 border-green-900 border-x-4 rounded-lg focus:ring-green-500 focus:border-green-500"
+             placeholder="Google SMTP Server" value="smtp.gmail.com" tabindex="-1" readonly>
+    </div>
+
+    <div>
+      <label for="smtp_port" class="block text-sm font-semibold text-gray-700">
+        <i class="fas fa-plug text-green-600"></i> SMTP Port: <span class="text-red-500">*</span>
+      </label>
+      <input type="text" id="smtp_port" name="smtp_port"
+             class="placeholder:text-black pointer-events-none w-full mt-1 p-3 border-green-900 border-x-4 rounded-lg focus:ring-green-500 focus:border-green-500"
+             placeholder="PORT 587" value="587" tabindex="-1" readonly>
+    </div>
+
+    <div>
+      <label for="smtp_email" class="block text-sm font-semibold text-gray-700">
+        <i class="fas fa-envelope text-green-600"></i> SMTP Email: <span class="text-red-500">*</span>
+      </label>
+      <div id="smtp_email_error" class="error text-red-500">
+        {% for error in form.smtp_email.errors %}
+            <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+      <input type="email" id="smtp_email" name="smtp_email"
+             class="w-full mt-1 p-3 border rounded-lg focus:ring-green-500 focus:border-green-500"
+             placeholder="Enter SMTP email address" value="{{ modal_data.smtp.smtp_email|default:'' }}" required>
+      
+    </div>
+
+    <div>
+      <label for="smtp_password" class="block text-sm font-semibold text-gray-700">
+        <i class="fas fa-key text-green-600"></i> SMTP Password: <span class="text-red-500">*</span>
+      </label>
+      <div id="smtp_password_error" class="error text-red-500">
+        {% for error in form.smtp_password.errors %}
+            <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+      <input type="password" id="smtp_password" name="smtp_password"
+             class="w-full mt-1 p-3 border rounded-lg focus:ring-green-500 focus:border-green-500"
+             placeholder="Enter SMTP password" value="{{ modal_data.smtp.smtp_password|default:'' }}" required>
+    </div>
+  </div>
+{% endblock %}
+
+{% block fixed_modal %}
+<form id="saveForm" action="" method="POST">
+  <div id="confirmationModal" class="hidden fixed inset-0 w-full h-full z-50 bg-gray-800 bg-opacity-50">
+    <div class="h-full w-full flex items-center justify-center">
+      <div class="bg-white w-3/4 h-[80%] overflow-y-auto rounded-lg shadow-xl px-6 pb-6">
+            <div class="sticky top-0 bg-white py-3 px-2 border-b-2">
+              <h2 class=" text-lg font-bold flex items-center">
+                <i class="fas fa-check-circle text-green-500 mr-2"></i> Confirm Submission
+              </h2>
+              <p>Review the data before saving to the database.</p>
+            </div>
+            
+            {% include 'setup/partials/sessions_data.html' %}
+            <!-- Action Buttons -->
+            <div class="flex justify-end mt-4">
+              <!-- Cancel Button -->
+              <button id="cancel_modal" class="flex items-center px-4 py-2 bg-gray-500 text-white rounded mr-2">
+                  <i class="fas fa-times-circle mr-2"></i> <!-- Font Awesome cancel icon -->
+                  Cancel
+              </button>
+
+              <!-- Add to Database Button -->
+              <button type="submit" id="add_to_database" class="flex items-center px-4 py-2 bg-green-500 text-white rounded">
+                  <i class="fas fa-database mr-2"></i> <!-- Font Awesome database icon -->
+                  Add to Database
+              </button>
+            </div>
+        </div>
+    </div>
+  </div>
+</form>    
+  <script>
+    $(document).ready(function () {
+      // Handle form submission
+      $('#system_settings_form').on('submit', function (e) {
+        e.preventDefault();
+
+        const formData = $(this).serialize(); // Serialize form data
+
+        $.ajax({
+            url: '',
+            method: 'POST',
+            data: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            success: function (data) {
+                if (data.modal_data) {
+                    openModal();
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error('Error:', error);
+            },
+            // Handle invalid form errors
+            complete: function(response) {
+              if(response.responseJSON && response.responseJSON.form_errors) {
+                  // Assuming `form_errors` is a dictionary, you can loop over the errors and display them
+                  var errors = response.responseJSON.form_errors;
+                  for (var field in errors) {
+                      // For each field, append error message to a specific location (e.g., under the field)
+                      $("#" + field + "_error").text(errors[field].join(", "));
+                  }
+              }
+          }
+        });
+      });
+
+      function openModal() {
+        $('#confirmationModal').removeClass('hidden');
+      }
+      // Close
+      const cancelButton = document.getElementById('cancel_modal');
+      cancelButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        $('#confirmationModal').addClass('hidden');
+      });
+
+      // Handle "Add to Database" button click
+      $("#saveForm").on("submit", function (e) {
+        e.preventDefault(); // Prevent default form submission
+    
+        $.ajax({
+            url: "{% url 'save_to_database' %}", // Use Django's URL template tag
+            type: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': getCSRFToken() // Helper function to retrieve CSRF token
+            },
+            success: function (response) {
+              if (response.success) {
+                showSuccessModal(response.message, response.redirect_url);
+              } else {
+                  alert(response.message || 'An error occurred. Please try again.');
+              }
+            },
+            error: function (xhr, status, error) {
+                alert('An unexpected error occurred: ' + error);
+            }
+        });
+      });
+      
+      function getCSRFToken() {
+          return $('input[name="csrfmiddlewaretoken"]').val(); 
+      }
+      
+      // Open the modal when data is successfully saved
+      function showSuccessModal(message, redirectUrl) {
+        $("#modalMessage").text(message);
+
+        // Set the redirect button action
+        $("#redirectToDashboard").off("click").on("click", function () {
+            window.location.href = redirectUrl;
+        });
+
+        // Show the modal
+        $("#successModal").removeClass("hidden");
+      }
+    });
+  </script>
+
+  <div id="successModal" class="fixed inset-0 z-50 bg-black bg-opacity-50 hidden">
+    <div class="h-full flex items-center justify-center">
+      <div class="bg-white rounded-lg p-6 max-w-sm w-full">
+          <div class="flex items-center mb-4">
+              <i class="text-green-500 fas fa-check-circle mr-2"></i>
+              <h3 class="text-xl font-semibold">Success</h3>
+          </div>
+          <p id="modalMessage" class="text-lg text-gray-700 mb-4"></p>
+          <button id="redirectToDashboard" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-700">
+              <i class="fas fa-tachometer-alt mr-2"></i> Go to Dashboard
+          </button>
+      </div>
+    </div>
+  </div>
+
+{% endblock fixed_modal %}

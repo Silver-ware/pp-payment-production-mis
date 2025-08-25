@@ -1,0 +1,135 @@
+{% load static tailwind_tags %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    {% tailwind_css %}
+  </head>
+  <body>
+    <div class="flex justify-center h-screen">
+      <div class="sm:mx-auto sm:w-full sm:max-w-sm flex flex-col items-center justify-center gap-8 relative overflow-y-hidden">
+        <h2 class="text-center text-4xl font-bold leading-9 tracking-tight text-gray-900">CREATE AN EMPLOYEE ACCOUNT</h2>
+        <img src="{% static 'simg/employee.gif'%}" class="w-2/4"/>
+      </div>
+
+      <div class="w-[60%] overflow-y-scroll py-8 pr-2 ">
+      <form class="w-full flex align-center flex-col border-x px-8 " action="" method="POST">
+        {% csrf_token %}
+        <div class="space-y-12 border-t pt-4">
+          <div class="border-b border-gray-900/10 pb-12">
+            <h2 class="text-base font-semibold leading-7 text-gray-900">Employee Account</h2>
+            <p class="mt-1 text-sm leading-6 text-gray-600">Fill out the required fields to set up the system.</p>
+      
+            <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+              <div class="sm:col-span-4">
+                <label for="username" class="block text-sm font-medium leading-6 text-gray-900" value="{{ form.username.value|default:'' }}">Username :</label>
+                <div class="my-2">
+                  <div class="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-green-500 sm:max-w-md">
+                    <span class="flex select-none items-center pl-3 text-gray-500 sm:text-sm">ppppmis/account/</span>
+                    <input type="text" name="username" id="id_username" autocomplete="username" class="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6" placeholder="janesmith">
+                  </div>
+                </div>
+                {% if form.username.errors %}
+                    {% for error in form.username.errors %}
+                        <p class="font-bold text-red-500 text-sm mt-1">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+                <label for="password" class="block text-sm font-medium leading-6 text-gray-900">Password :</label>
+                <div class="mt-2">
+                  <div class="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-green-500 sm:max-w-md">
+                    <input type="password" name="password1" required="" id="id_password1" class="block flex-1 border-0 bg-transparent py-1.5 pl-3 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6">
+                  </div>
+                </div>
+                <label for="password" class="block text-sm font-medium leading-6 text-gray-900">Re-type Password :</label>
+                <div class="mt-2">
+                  <div class="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-green-500 sm:max-w-md">
+                    <input type="password" name="password2" required="" id="id_password2" class="block flex-1 border-0 bg-transparent py-1.5 pl-3 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6">
+                  </div>
+                </div>
+                {% if form.password2.errors %}
+                    {% for error in form.password2.errors %}
+                        <p class="font-bold text-red-500 text-sm mt-1">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+              </div>
+              {% if form.non_field_errors %}
+                  {% for error in form.non_field_errors %}
+                      <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+                  {% endfor %}
+              {% endif %}
+            </div>
+          </div>
+      
+          <div class="border-b border-gray-900/10 pb-12">
+            <h2 class="text-base font-semibold leading-7 text-gray-900">Personal Information</h2>
+            <p class="mt-1 text-sm leading-6 text-gray-600">Use a permanent email address where you can receive mail.</p>
+      
+            <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+              <div class="sm:col-span-3">
+                <label for="first-name" class="block text-sm font-medium leading-6 text-gray-900">First name :</label>
+                <div class="mt-2">
+                  <input type="text" name="first_name" id="first-name" autocomplete="given-name" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-500 sm:text-sm sm:leading-6">
+                </div>
+              </div>
+      
+              <div class="sm:col-span-3">
+                <label for="last-name" class="block text-sm font-medium leading-6 text-gray-900">Last name :</label>
+                <div class="mt-2">
+                  <input type="text" name="last_name" id="last-name" autocomplete="family-name" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-500 sm:text-sm sm:leading-6">
+                </div>
+              </div>
+      
+              <div class="sm:col-span-4">
+                <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Email address :</label>
+                <div class="mt-2">
+                  <input id="email" name="email" type="email" autocomplete="email" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-500 sm:text-sm sm:leading-6">
+                </div>
+                {% if form.email.errors %}
+                    {% for error in form.email.errors %}
+                        <p class="font-bold text-red-500 text-sm mt-1">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+              </div>
+              
+
+              <div class="sm:col-span-2">
+                <label for="positions" class="block text-sm font-medium leading-6 text-gray-900">Work Positions :</label>
+                <div class="mt-2">
+                  <select name="role" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-500 sm:text-sm sm:leading-6">
+                    <option value="">Select Role</option>
+                    <option value="Managerial">Managerial</option>
+                    <option value="Artist/Designer">Artist/Designer</option>
+                    <option value="Staff/Clerk">Staff/Clerk</option>
+                    <option value="Others">Others</option>
+                  </select>
+                </div>
+              </div>
+      
+            </div>
+          </div>
+      
+        <div class="mt-6 flex items-center justify-end gap-x-6">
+          <a href="{% url 'business_details' %}" class="text-sm font-semibold leading-6 text-gray-900">Cancel</a>
+          <button type="submit" class="rounded-md bg-green-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-500">Save</button>
+        </div>
+      </form>
+    </div>
+    {% if messages %}
+      {% for message in messages %}
+        <div x-data="{ showModal: true }" x-show="showModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h2 class="font-bold text-green-500 text-xl">Success</h2>
+                <p class="text-black">{{ message|safe }}</p>
+                <div class="mt-4 flex justify-end space-x-2">
+                    <a @click="showModal = false" class="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded" href="{% url 'business_details' %}">Cancel</a>
+                    <a href="{% url 'signup' %}" class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded">Add Another</a>
+                </div>
+            </div>
+        </div>
+      {% endfor %}
+    {% endif %}
+  </body>
+</html>

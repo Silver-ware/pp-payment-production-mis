@@ -1,0 +1,217 @@
+<!-- Modal content -->
+<div id="modal-content" class="mt-4 space-y-6">
+
+  <!-- Business Details -->
+  {% if modal_data.business_details %}
+  <div>
+      <h3 class="text-md font-semibold mb-2 flex items-center">
+          <i class="fas fa-building text-blue-500 mr-2"></i> Business Details
+      </h3>
+      <table class="w-full text-left border-collapse border border-gray-300">
+          <tr class="bg-gray-100">
+              <th class="border border-gray-300 px-4 py-2">Field</th>
+              <th class="border border-gray-300 px-4 py-2">Value</th>
+          </tr>
+          {% for key, value in modal_data.business_details.items %}
+          <tr>
+              <td class="border border-gray-300 px-4 py-2">{{ key|title }}</td>
+              <td class="border border-gray-300 px-4 py-2">{{ value }}</td>
+          </tr>
+          {% endfor %}
+      </table>
+  </div>
+  {% endif %}
+
+  <!-- Services -->
+  {% if modal_data.services_data %}
+  <div>
+    <h3 class="text-md font-semibold mb-2">
+      <i class="fas fa-cogs text-green-600 mr-2"></i> Services
+    </h3>
+    <table class="w-full text-left border-collapse border border-gray-300">
+      <thead>
+        <tr class="bg-gray-100">
+          <th class="border border-gray-300 px-4 py-2">Service Name</th>
+          <th class="border border-gray-300 px-4 py-2">Customization</th>
+          <th class="border border-gray-300 px-4 py-2">Pricing Options</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for service in modal_data.services_data %}
+          <tr>
+            <td class="border border-gray-300 px-4 py-2">{{ service.name }}</td>
+            <td class="border border-gray-300 px-4 py-2">
+              <ul class="list-disc pl-6">
+                {% for customization in service.customization_options %}
+                  <li>
+                    <strong>{{ customization.name }}</strong>
+                    <ul class="list-inside ml-4">
+                      {% for pricing in customization.pricing_options %}
+                        <li>{{ pricing.description }}</li>
+                      {% endfor %}
+                    </ul>
+                  </li>
+                {% endfor %}
+              </ul>
+            </td>
+            <td class="border border-gray-300 px-4 py-2">
+              <ul class="list-disc pl-6">
+                {% for customization in service.customization_options %}
+                  {% for pricing in customization.pricing_options %}
+                    <li class="border-t border-gray-400 py-2">
+                      <div class="flex items-center justify-between">
+                        <span class="flex-1">{{ pricing.description }}</span>
+                        <span class="font-semibold ml-2">{{ pricing.price }}</span>
+                      </div>
+                    </li>
+                  {% endfor %}
+                {% endfor %}
+              </ul>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+
+  <!-- Equipment -->
+  {% if modal_data.equipment %}
+  <div>
+      <h3 class="text-md font-semibold mb-2 flex items-center">
+          <i class="fas fa-tools text-gray-500 mr-2"></i> Equipment
+      </h3>
+      <table class="w-full text-left border-collapse border border-gray-300">
+          <tr class="bg-gray-100">
+              <th class="border border-gray-300 px-4 py-2">Equipment Name</th>
+              <th class="border border-gray-300 px-4 py-2">Description</th>
+              <th class="border border-gray-300 px-4 py-2">Condition</th>
+          </tr>
+          {% for item in modal_data.equipment %}
+          <tr>
+              <td class="border border-gray-300 px-4 py-2">{{ item.name }}</td>
+              <td class="border border-gray-300 px-4 py-2">{{ item.description }}</td>
+              <td class="border border-gray-300 px-4 py-2">{{ item.condition }}</td>
+          </tr>
+          {% endfor %}
+      </table>
+  </div>
+  {% endif %}
+
+  <!-- Inventory -->
+  {% if modal_data.inventory %}
+  <div>
+    <h3 class="text-md font-semibold mb-2 flex items-center">
+        <i class="fas fa-boxes text-purple-500 mr-2"></i> Inventory
+    </h3>
+    <table class="w-full text-left border-collapse border border-gray-300">
+        <tr class="bg-gray-100">
+            <th class="border border-gray-300 px-4 py-2">Item</th>
+            <th class="border border-gray-300 px-4 py-2">Unit</th>
+            <th class="border border-gray-300 px-4 py-2">Stock Level</th>
+            <th class="border border-gray-300 px-4 py-2">Reorder Threshold</th>
+            <th class="border border-gray-300 px-4 py-2">Supplier</th>
+        </tr>
+        {% for category, items in modal_data.inventory.items %}
+        <tr class="bg-gray-200 font-semibold">
+            <td colspan="5" class="border border-gray-300 px-4 py-2">{{ category }}</td>
+        </tr>
+        {% for item in items %}
+        <tr>
+            <td class="border border-gray-300 px-4 py-2">{{ item.name }}</td>
+            <td class="border border-gray-300 px-4 py-2">{{ item.unit }}</td>
+            <td class="border border-gray-300 px-4 py-2">{{ item.stock_level }}</td>
+            <td class="border border-gray-300 px-4 py-2">{{ item.reorder_threshold }}</td>
+            <td class="border border-gray-300 px-4 py-2">{{ item.supplier|default:'N/A' }}</td>
+        </tr>
+        {% endfor %}
+        {% endfor %}
+    </table>
+  </div>
+  {% endif %}
+
+  <!-- Supplier -->
+  {% if modal_data.supplier %}
+  <div>
+      <h3 class="text-md font-semibold mb-2 flex items-center">
+          <i class="fas fa-truck text-orange-500 mr-2"></i> Supplier
+      </h3>
+      <table class="w-full text-left border-collapse border border-gray-300">
+          <tr class="bg-gray-100">
+              <th class="border border-gray-300 px-4 py-2">Supplier Name</th>
+              <th class="border border-gray-300 px-4 py-2">Contact Person</th>
+              <th class="border border-gray-300 px-4 py-2">Phone Number</th>
+              <th class="border border-gray-300 px-4 py-2">Email</th>
+              <th class="border border-gray-300 px-4 py-2">Address</th>
+              <th class="border border-gray-300 px-4 py-2">+ Info</th>
+          </tr>
+          {% for supplier in modal_data.supplier %}
+          <tr>
+              <td class="border border-gray-300 px-4 py-2">{{ supplier.supplier_name }}</td>
+              <td class="border border-gray-300 px-4 py-2">{{ supplier.contact_person }}</td>
+              <td class="border border-gray-300 px-4 py-2">{{ supplier.phone_number }}</td>
+              <td class="border border-gray-300 px-4 py-2">{{ supplier.email }}</td>
+              <td class="border border-gray-300 px-4 py-2">{{ supplier.address }}</td>
+              <td class="border border-gray-300 px-4 py-2">{{ supplier.additional_info }}</td>
+          </tr>
+          {% endfor %}
+      </table>
+  </div>
+  {% endif %}
+
+  <!-- Customer -->
+  {% if modal_data.customer %}
+  <div>
+      <h3 class="text-md font-semibold mb-2 flex items-center">
+          <i class="fas fa-users text-teal-500 mr-2"></i> Customers
+      </h3>
+      <table class="w-full text-left border-collapse border border-gray-300">
+          <tr class="bg-gray-100">
+              <th class="border border-gray-300 px-4 py-2">Name</th>
+              <th class="border border-gray-300 px-4 py-2">Contact Number</th>
+              <th class="border border-gray-300 px-4 py-2">Email</th>
+              <th class="border border-gray-300 px-4 py-2">Address</th>
+          </tr>
+          {% for customer in modal_data.customer %}
+          <tr>
+              <td class="border border-gray-300 px-4 py-2">{{ customer.name }}</td>
+              <td class="border border-gray-300 px-4 py-2">{{ customer.contact_number }}</td>
+              <td class="border border-gray-300 px-4 py-2">{{ customer.email }}</td>
+              <td class="border border-gray-300 px-4 py-2">{{ customer.address }}</td>
+          </tr>
+          {% endfor %}
+      </table>
+  </div>
+  {% endif %}
+
+  {% if modal_data.system_settings %}
+  <div>
+    <h3 class="text-md font-semibold mb-2">
+      <i class="fas fa-tools text-blue-600 mr-2"></i> System Settings
+    </h3>
+    <table class="w-full text-left border-collapse border border-gray-300">
+      <thead>
+        <tr class="bg-gray-100">
+          <th class="border border-gray-300 px-4 py-2">Setting</th>
+          <th class="border border-gray-300 px-4 py-2">Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for key, value in modal_data.system_settings.items %}
+          <tr>
+            <td class="border border-gray-300 px-4 py-2">{{ key }}</td>
+            <td class="border border-gray-300 px-4 py-2">
+              {% if key == 'Smtp password' %}
+                ••••••••
+              {% else %}
+                {{ value }}
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}   
+</div>

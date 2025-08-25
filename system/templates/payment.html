@@ -1,0 +1,165 @@
+{% extends 'extends/main_interface.html' %}
+
+{% block aside_var %}
+    {% with payment_active=True %}
+        {{block.super}}
+    {% endwith %}
+{% endblock aside_var %}
+
+{% block content %}
+    <!-- Payment Page Content -->
+    <div class="payment-page-container p-4 overflow-auto">
+        <h2 class="text-2xl font-bold mb-4">Payments</h2>
+        
+        <div class="tabs-container mb-6">
+            <div class="tabs flex space-x-4">
+                <button class="tab-button py-2 px-4 bg-gray-200 rounded-md" id="new-payment-tab">New Payment</button>
+                <button class="tab-button py-2 px-4 bg-gray-200 rounded-md" id="payment-history-tab">Payment History</button>
+                <button class="tab-button py-2 px-4 bg-gray-200 rounded-md" id="outstanding-balances-tab">Outstanding Balances</button>
+                <button class="tab-button py-2 px-4 bg-gray-200 rounded-md" id="refunds-disputes-tab">Refunds & Disputes</button>
+                <button class="tab-button py-2 px-4 bg-gray-200 rounded-md" id="generate-invoices-tab">Generate Invoices</button>
+            </div>
+            
+            <!-- Tab Content -->
+            <div class="tab-content mt-6">
+                <div class="tab-panel" id="new-payment-panel">
+                    <!-- New Payment Form -->
+                    <form method="POST" action="{% url 'new_payment' %}" class="payment-form">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label for="order_id" class="block">Order ID</label>
+                            <input type="text" name="order_id" id="order_id" class="input-field" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="amount" class="block">Amount</label>
+                            <input type="number" name="amount" id="amount" class="input-field" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="payment_method" class="block">Payment Method</label>
+                            <select name="payment_method" id="payment_method" class="input-field" required>
+                                <option value="cash">Cash</option>
+                                <option value="card">Card</option>
+                                <option value="bank_transfer">Bank Transfer</option>
+                                <option value="digital_wallet">Digital Wallet</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label for="payment_status" class="block">Payment Status</label>
+                            <select name="payment_status" id="payment_status" class="input-field" required>
+                                <option value="pending">Pending</option>
+                                <option value="partially_paid">Partially Paid</option>
+                                <option value="paid">Paid</option>
+                                <option value="refunded">Refunded</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn-submit">Submit Payment</button>
+                    </form>
+                </div>
+                
+                <div class="tab-panel" id="payment-history-panel">
+                    <!-- Payment History Table -->
+                    <table class="payment-history-table table-auto w-full mt-4">
+                        <thead>
+                            <tr>
+                                <th>Payment ID</th>
+                                <th>Order ID</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Payment Method</th>
+                                <th>Payment Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for payment in payments %}
+                                <tr>
+                                    <td>{{ payment.payment_id }}</td>
+                                    <td>{{ payment.order.order_id }}</td>
+                                    <td>{{ payment.amount }}</td>
+                                    <td>{{ payment.get_status_display }}</td>
+                                    <td>{{ payment.payment_method.method_name }}</td>
+                                    <td>{{ payment.payment_date }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="tab-panel" id="outstanding-balances-panel">
+                    <!-- Outstanding Balances Table -->
+                    <table class="outstanding-balances-table table-auto w-full mt-4">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Amount Due</th>
+                                <th>Payment Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in outstanding_orders %}
+                                <tr>
+                                    <td>{{ order.order_id }}</td>
+                                    <td>{{ order.customer.name }}</td>
+                                    <td>{{ order.amount_due }}</td>
+                                    <td>{{ order.payment_status }}</td>
+                                    <td>
+                                        <button class="btn-send-reminder" data-order-id="{{ order.order_id }}">Send Reminder</button>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="tab-panel" id="refunds-disputes-panel">
+                    <!-- Refunds & Disputes Table -->
+                    <table class="refunds-disputes-table table-auto w-full mt-4">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Refund Amount</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for refund in refunds %}
+                                <tr>
+                                    <td>{{ refund.order.order_id }}</td>
+                                    <td>{{ refund.order.customer.name }}</td>
+                                    <td>{{ refund.refund_amount }}</td>
+                                    <td>{{ refund.get_status_display }}</td>
+                                    <td>
+                                        <button class="btn-process-refund" data-refund-id="{{ refund.refund_id }}">Process Refund</button>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="tab-panel" id="generate-invoices-panel">
+                    <!-- Generate Invoice Form -->
+                    <form method="POST" action="" class="invoice-form">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label for="order_id" class="block">Order ID</label>
+                            <input type="text" name="order_id" id="order_id" class="input-field" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="tax_rate" class="block">Tax Rate</label>
+                            <input type="number" name="tax_rate" id="tax_rate" class="input-field" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="terms_conditions" class="block">Terms and Conditions</label>
+                            <textarea name="terms_conditions" id="terms_conditions" class="input-field" required></textarea>
+                        </div>
+                        <button type="submit" class="btn-submit">Generate Invoice</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,135 @@
+{% load static tailwind_tags %}
+
+<!DOCTYPE html>
+<html class="h-full">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>{% block title %}{% endblock %}</title>
+    {% tailwind_css %}
+    <script src="{% static 'jquery/jquery-3.7.1.min.js' %}"></script>
+    <script src="{% static 'jquery/jquery-ui.js' %}"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/smoothness/jquery-ui.css">
+    <!-- Glide.js Stylesheet -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@glidejs/glide/dist/css/glide.core.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@glidejs/glide/dist/css/glide.core.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@glidejs/glide"></script>
+    <script src="https://cdn.jsdelivr.net/npm/progressbar.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    {% block head_block %}{% endblock head_block %}
+  </head>
+  <body class="h-screen flex flex-col justify-stretch w-full overflow-y-hidden">
+    <nav class="w-full bg-green-950 border-b-2 border-black z-20">
+      <div class="pl-4 pr-3">
+        <div class="flex items-center justify-between">
+          <div class="pl-2 flex items-center justify-start rtl:justify-end">
+            <span class="text-sm text-white">Username : {% if user.is_authenticated %}{{ user.username }}
+              {% endif %}</span>
+          </div>
+          <div class="flex items-center justify-start rtl:justify-end">
+            <a href="#" class="flex ms-2 md:me-24">
+              <span class="self-center text-sm font-semibold whitespace-nowrap text-white">Print Production & Payment MIS of Oi Prints</span>
+            </a>
+          </div>
+          <div class="h-max">
+            <form method="POST" action="{% url 'logout' %}" class="h-max flex items-center">
+              {% csrf_token %}
+              <button type="submit">
+                <img src="{% static 'icons/logout.gif'%}" class="w-12 h-12"/>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </nav>
+    <div class="flex-1 flex overflow-y-hidden">
+      {% block aside_var %}
+      <aside class="flex flex-col justify-between w-44 bg-card text-card-foreground py-3 overflow-y-hidden bg-green-300">
+        <div class="h-max">
+          <div class="flex justify-evenly w-full h-max border-b-2 border-b-gray-50 pb-2 px-2">
+            <img src="{% static 'icons/arrow.png'%}" class="w-6 h-6"/> 
+            <img src="{% static 'icons/arrow.png'%}" class="w-6 h-6 scale-x-[-1]"/> 
+            <img src="{% static 'icons/bookmark.png'%}" class="w-6 h-6"/> 
+            <img src="{% static 'icons/printer.png'%}" class="w-6 h-6"/> 
+          </div>
+          <ul class="mt-3 pl-2">
+            <li class="pl-2 py-2 hover:bg-gray-200 rounded-l-xl {% if dashboard_active %}bg-gray-50{% endif %}">
+              <a href="{% url 'dashboard' %}" class="flex items-center gap-2">
+                <img src="{% static 'icons/dashboard.gif'%}" class="w-7 h-7 mr-1"/> 
+                <span class="text-base font-semibold">Dashboard</span>
+              </a>
+            </li>
+            <li class="pl-2 py-2 rounded-l-xl {% if order_active %}bg-gray-50 {% else %}hover:bg-gray-200 {% endif %}">
+              <a href="{% url 'orders' %}" class="flex items-center gap-2">
+                <img src="{% static 'icons/orders.gif'%}" class="w-8 h-8"/> 
+                <span class="text-base font-semibold">Orders</span>
+              </a>
+            </li>
+            <li class="pl-2 py-2 hover:bg-gray-200 rounded-l-xl {% if production_active %}bg-gray-50{% endif %}">
+              <a href="{% url 'production' %}" class="flex items-center gap-2">
+                <img src="{% static 'icons/production.gif'%}" class="w-8 h-8"/> 
+                <span class="text-base font-semibold">Production</span>
+              </a>
+            </li>
+            <li class="pl-2 py-2 hover:bg-gray-200 rounded-l-xl {% if payment_active %}bg-gray-50{% endif %}">
+              <a href="{% url 'payment' %}" class="flex items-center gap-2">
+                <img src="{% static 'icons/payment.gif'%}" class="w-8 h-8"/> 
+                <span class="text-base font-semibold">Payments</span>
+              </a>
+            </li>
+            <li class="pl-2 py-2 hover:bg-red-200 rounded-l-xl">
+              <a href="#" class="flex items-center gap-2">
+                <img src="{% static 'icons/estimates.gif'%}" class="w-8 h-8"/> 
+                <span class="text-base text-red-800 font-bold">Quotations</span>
+              </a>
+            </li>
+            <li class="pl-2 py-2 hover:bg-gray-200 rounded-l-xl {% if crm_active %}bg-gray-50{% endif %}">
+              <a href="{% url 'crm_view' %}" class="flex items-center gap-2">
+                <img src="{% static 'icons/crm.gif'%}" class="w-8 h-8"/> 
+                <span class="text-base font-semibold">CRM</span>
+              </a>
+            </li>
+            <li class="pl-2 py-2 hover:bg-red-200 rounded-l-xl">
+              <a href="#" class="flex items-center gap-2">
+                <img src="{% static 'icons/reporting.gif'%}" class="w-8 h-8"/> 
+                <span class="text-base font-bold text-red-800">Reporting</span>
+              </a>
+            </li>
+            <li class="pl-2 py-2 hover:bg-gray-200 rounded-l-xl">
+              <a href="#" class="flex items-center gap-2">
+                <img src="{% static 'icons/admin1.png'%}" class="w-7 h-7 mr-1"/> 
+                <span class="text-base font-semibold">Admin</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+        <div class="flex items-center justify-between w-full h-max px-2 border-t-2 border-t-gray-50 pt-2">
+          <div class="flex gap-2">
+            <img src="{% static 'icons/save.png'%}" class="w-4 h-4"/> 
+            <img src="{% static 'icons/history.png'%}" class="w-4 h-4"/> 
+          </div>
+          <img src="{% static 'icons/lock.png'%}" class="w-5 h-5"/> 
+        </div> 
+      </aside>
+      {% endblock aside_var %}
+  
+      <main class="flex-1 overflow-y-hidden">
+        {% block main_var %}
+        <div class="h-full flex flex-col">
+          {% if header %}
+            <div class="flex sticky top-0 w-full bg-[#335b39] pl-6 py-2 gap-8 border-t border-black z-50">
+              {% block header %}{% endblock header %}
+            </div>
+          {% endif %}
+          <div class="flex-1 flex flex-col overflow-y-hidden">
+            {% block content %}
+            {% endblock %}
+          </div>
+        </div>
+        {% endblock main_var %}
+      </main>
+    </div>
+  </body>
+</html>

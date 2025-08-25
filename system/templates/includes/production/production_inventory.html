@@ -1,0 +1,81 @@
+<div class="inventory-popover bg-white shadow-lg rounded-lg p-4 w-full transition-transform duration-300 ease-in-out transform scale-100">
+  <h3 class="sticky top-0 bg-white py-3 pl-2 text-green-700 font-bold text-xl mb-4 w-full border-b border-green-600 border-dashed pb-1">INVENTORY CATEGORY:</h3>
+  <div class="flex flex-wrap px-2 gap-4">
+      {% for category, materials in inventory.items %}
+      <div class="category-section rounded-lg p-3 transition-all hover:shadow-lg hover:shadow-green-900 flex-1 basis-[48%]">
+          <h4 class="text-green-500 font-semibold text-lg mb-4 uppercase"><span class="font-bold text-black"> CATEGORY: </span>{{ category }}</h4>
+          <div class="overflow-x-auto">
+            {% if materials %}
+              <table class="w-full border-collapse border border-green-500 text-left">
+                  <thead>
+                      <tr class="bg-green-100">
+                          <th class="border border-green-500 px-4 py-2">Material Name</th>
+                          <th class="border border-green-500 px-4 py-2">Stock Level</th>
+                          <th class="border border-green-500 px-4 py-2">Threshold</th>
+                          <th class="border border-green-500 px-4 py-2">Actions</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      {% for material in materials %}
+                      <tr class="hover:bg-green-50">
+                          <td class="border border-green-500 px-4 py-2">{{ material.name }}</td>
+                          <td class="border border-green-500 px-4 py-2">{{ material.stock_level }} {{ material.unit }}</td>
+                          <td class="border border-green-500 px-4 py-2">{{ material.reorder_threshold }}</td>
+                          <td class="border border-green-500 px-4 py-2">
+                              <button class="supplier-toggle text-sm text-blue-500 hover:underline">
+                                  View Supplier Details
+                              </button>
+                              <div class="supplier-details hidden mt-2 bg-gray-100 border border-gray-300 rounded-lg p-2 shadow-lg z-10">
+                                  {% if material.supplier.name != "No Supplier" %}
+                                  <p class="text-xs text-gray-700"><strong>Supplier:</strong> {{ material.supplier.name }}</p>
+                                  <p class="text-xs text-gray-700"><strong>Contact Person:</strong> {{ material.supplier.contact }}</p>
+                                  <p class="text-xs text-gray-700"><strong>Phone:</strong> {{ material.supplier.phone }}</p>
+                                  <p class="text-xs text-gray-700"><strong>Email:</strong> {{ material.supplier.email }}</p>
+                                  <p class="text-xs text-gray-700"><strong>Address:</strong> {{ material.supplier.address }}</p>
+                                  {% else %}
+                                  <p class="text-xs text-gray-500 italic">No Supplier Information</p>
+                                  {% endif %}
+                              </div>
+                          </td>
+                      </tr>
+                      {% endfor %}
+                  </tbody>
+              </table>
+              {% else %}
+              <p class="text-gray-500 italic text-center py-4">No materials available for this category.</p>
+              {% endif %}
+          </div>
+      </div>
+      {% endfor %}
+  </div>
+</div>
+
+<script>
+  $(document).ready(function () {
+    // Toggle supplier details
+    $(".supplier-toggle").on("click", function (e) {
+        e.preventDefault();
+        const $supplierDetails = $(this).next(".supplier-details");
+
+        $(".supplier-details").not($supplierDetails).slideUp(300); // Hide other open details
+        $supplierDetails.slideToggle(300); // Toggle current supplier details
+    });
+  });
+</script>
+<style>
+  /* Add a shadow and smooth transitions for supplier details */
+  .supplier-details {
+      transition: all 0.3s ease-in-out;
+  }
+
+  /* Hover effect for table rows */
+  tbody tr:hover {
+      background-color: #f0fdf4; /* Light green */
+  }
+
+  /* Ensure consistent spacing */
+  table th, table td {
+      text-align: left;
+      white-space: nowrap;
+  }
+</style>
