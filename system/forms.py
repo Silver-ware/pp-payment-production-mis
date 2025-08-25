@@ -71,25 +71,23 @@ class BusinessDetailsForm(forms.Form):
                 raise forms.ValidationError("Tax Identification Number (TIN) must contain only numbers.")
             if len(tin) < 9 or len(tin) > 20:
                 raise forms.ValidationError("TIN must be between 9 and 20 digits.")
-            # Example of checking TIN uniqueness if database interaction is involved:
-            # if Business.objects.filter(tin=tin).exists():
-            #     raise forms.ValidationError("This TIN is already in use.")
+
+
+
             return tin
 
     def clean_logo(self):
         logo = self.cleaned_data.get('logo')
         if logo:
-            # File size validation (2MB max)
+
             max_file_size = 2 * 1024 * 1024  # 2MB
             if logo.size > max_file_size:
                 raise forms.ValidationError("Logo file size must not exceed 2MB.")
 
-            # File type validation
             valid_mime_types = ["image/jpeg", "image/png"]
             if logo.content_type not in valid_mime_types:
                 raise forms.ValidationError("Logo must be a JPEG or PNG image.")
 
-            # Image dimension validation
             from PIL import Image
             try:
                 image = Image.open(logo)
@@ -111,7 +109,7 @@ class BusinessDetailsForm(forms.Form):
 
 class ServiceForm(forms.ModelForm):
     customization_options = forms.CharField(
-        required=False,  # Optional field
+        required=False,
         widget=forms.TextInput(),  
     )
     class Meta:
@@ -123,19 +121,19 @@ class ServiceForm(forms.ModelForm):
         print(f"Received customization options: {options}")
         if options:
             try:
-                # Convert JSON string back into a list
+
                 options_list = json.loads(options)
-                if not isinstance(options_list, list):  # Ensure it's a list
+                if not isinstance(options_list, list):
                     raise ValueError
-                if not all(isinstance(option, str) and option.strip() for option in options_list):  # Validate each tag
+                if not all(isinstance(option, str) and option.strip() for option in options_list):
                     raise ValueError
             except (ValueError, TypeError):
                 raise forms.ValidationError("Invalid customization options format. Please use valid text tags.")
             
-            if len(options_list) > 10:  # Example limit
+            if len(options_list) > 10:  
                 raise forms.ValidationError("You can add a maximum of 10 customization options.")
             
-            return options_list  # Return the valid list
+            return options_list
         return []
     
     def clean_name(self):
@@ -144,9 +142,8 @@ class ServiceForm(forms.ModelForm):
             raise forms.ValidationError("Service name must be at least 3 characters long.")
         return name
 
-# Form is used but not the validations, because it the data inputted
-#    is already restricted in the template.
-# Comment only, for future used.
+
+
 class PricingOptionForm(forms.ModelForm):
     class Meta:
         model = PricingOption
@@ -154,18 +151,6 @@ class PricingOptionForm(forms.ModelForm):
         widgets = {
             'customization_option': forms.Select(),
         }
-
-    # def clean_description(self):
-    #     description = self.cleaned_data.get('description')
-    #     if not description:
-    #         raise forms.ValidationError('Description is required.')
-    #     return description
-
-    # def clean_price(self):
-    #     price = self.cleaned_data.get('price')
-    #     if price <= 0:
-    #         raise forms.ValidationError('Price must be a positive value.')
-    #     return price
 
 class EquipmentForm(forms.Form):
     class Meta:
@@ -204,7 +189,7 @@ class InventoryForm(forms.ModelForm):
     )
     supplier = forms.CharField(
         max_length=255,
-        required=False,  # Make this optional
+        required=False,
         widget=forms.TextInput(attrs={'placeholder': 'Enter supplier name'}),
     )
     unit_of_measurement = forms.ChoiceField(
@@ -213,7 +198,7 @@ class InventoryForm(forms.ModelForm):
     )
 
     def clean_category(self):
-        # Add custom validation for `category` if needed
+
         category = self.cleaned_data['category']
         predefined_categories = ["Ink", "Textiles", "Vinyl", "Paper", "Adhesives", "Fabrics", "Other"]
         if category not in predefined_categories:
@@ -221,7 +206,7 @@ class InventoryForm(forms.ModelForm):
         return category
 
     def clean_supplier(self):
-        # Add custom validation for `supplier` if needed
+
         supplier = self.cleaned_data['supplier']
         return supplier  # No strict validation for now
     
@@ -239,7 +224,7 @@ class InventoryForm(forms.ModelForm):
     
     def clean(self):
         cleaned_data = super().clean()
-        # Skip validation for `category` and `supplier`
+
         return cleaned_data
 
 class SupplierForm(forms.ModelForm):
@@ -250,7 +235,7 @@ class SupplierForm(forms.ModelForm):
     def clean_phone_number(self):
         phone_number = self.cleaned_data.get('phone_number')
         if phone_number:
-            # You can add further phone number validation here (e.g., regex, length check)
+
             if len(phone_number) < 11:
                 raise forms.ValidationError("Phone number must be at least 10 digits.")
         return phone_number
@@ -267,7 +252,6 @@ class CustomerForm(forms.ModelForm):
         model = Customer
         fields = ['name', 'contact_number', 'email', 'address']
 
-    # Custom clean method for the name field
     def clean_name(self):
         name = self.cleaned_data.get('name')
         if len(name) < 5:
@@ -402,8 +386,7 @@ class CustomUserCreationForm(UserCreationForm):
         is_active = True
         is_superuser = False
 
-        # Determine user role based on the calling view
-        if view_name == "admin_signup":  # Replace with the actual name of your admin view
+        if view_name == "admin_signup": 
             is_staff = True
             is_active = True
             is_superuser = True
@@ -415,8 +398,8 @@ class CustomUserCreationForm(UserCreationForm):
                 "Artist/Designer": {"is_staff": False, "is_active": True, "is_superuser": False, "groups": "Artist or Designer"},
                 "Others": {"is_staff": False, "is_active": True, "is_superuser": False, "groups": "Other"},
             }
-            # Default to active if role is missing or invalid
-            role = self.cleaned_data.get('role', "Others")  # Default to "Others" if role is not provided
+
+            role = self.cleaned_data.get('role', "Others")
             settings = role_settings.get(role, {"is_staff": False, "is_active": True, "is_superuser": False})
 
             is_staff = settings["is_staff"]
@@ -424,7 +407,6 @@ class CustomUserCreationForm(UserCreationForm):
             is_superuser = settings["is_superuser"]
             groups = settings["groups"]
 
-        # Create the user with the determined roles
         user = User.objects.create_user(
             username=self.cleaned_data['username'],
             password=self.cleaned_data['password2'],
@@ -432,14 +414,14 @@ class CustomUserCreationForm(UserCreationForm):
             last_name=self.cleaned_data['last_name'],
             email=self.cleaned_data['email'],
         )
-        # Save the role
+
         user.is_staff = is_staff
         user.is_active = is_active
         user.is_superuser = is_superuser
 
         if groups:
-            group, created = Group.objects.get_or_create(name=groups)  # Get or create the group
-            user.groups.add(group)  # Add the user to the group
+            group, created = Group.objects.get_or_create(name=groups)
+            user.groups.add(group)
 
         user.save()
         return user
@@ -477,7 +459,7 @@ class ProductionForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Custom initialization logic if needed
+
 
 from .models import Payment
 class PaymentForm(forms.Form):

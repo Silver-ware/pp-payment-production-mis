@@ -96,14 +96,14 @@
 
   <!-- Additional Info -->
   <div>
-    <label for="additional_info" class="block text-sm font-semibold text-gray-700">
-      <i class="fas fa-info-circle text-green-600"></i> Additional Information:
-    </label>
-    <textarea id="additional_info" name="additional_info" rows="1"
-              class="w-full mt-1 p-3 border rounded-lg focus:ring-green-500 focus:border-green-500"
-              placeholder="Enter any additional details about the supplier"></textarea>
+      <label for="additional_info" class="block text-sm font-semibold text-gray-700">
+        <i class="fas fa-info-circle text-green-600"></i> Additional Information:
+      </label>
+      <textarea id="additional_info" name="additional_info" rows="1"
+          class="w-full mt-1 p-3 border rounded-lg focus:ring-green-500 focus:border-green-500"
+          placeholder="Enter any additional details about the supplier"></textarea>
+    </div>
   </div>
-</div>
 
 <!-- Submit Button -->
 <div class="mt-8 flex justify-end">
@@ -125,15 +125,14 @@
   </div>
   {% endif %}
   <script>
-    // Fade out the success message after 3 seconds
     document.addEventListener('DOMContentLoaded', function () {
       const successMessage = document.getElementById('success-message');
       if (successMessage) {
         setTimeout(() => {
           successMessage.style.transition = 'opacity 0.5s ease';
           successMessage.style.opacity = '0';
-          setTimeout(() => successMessage.remove(), 500); // Remove after fade-out
-        }, 3000); // 3 seconds delay before starting fade-out
+          setTimeout(() => successMessage.remove(), 500);
+        }, 3000);
       }
     });
   </script>

@@ -77,9 +77,9 @@
     customerItems.forEach(function(item) {
       const customerName = item.getAttribute('data-customer-name');
       if (customerName.includes(searchQuery)) {
-        item.style.display = 'block'; // Show the customer item
+        item.style.display = 'block';
       } else {
-        item.style.display = 'none'; // Hide the customer item
+        item.style.display = 'none';
       }
     });
   }
@@ -89,38 +89,33 @@
     $(".order-toggle").on("click", function (e) {
         e.preventDefault();
         const $orderHistory = $(this).next(".order-history");
-        $(".order-history").not($orderHistory).slideUp(300); // Hide other open details
-        $orderHistory.slideToggle(300); // Toggle current order history
+        $(".order-history").not($orderHistory).slideUp(300);
+        $orderHistory.slideToggle(300);
     });
 
-    // Toggle payment history
     $(".payment-toggle").on("click", function (e) {
         e.preventDefault();
         const $paymentHistory = $(this).next(".payment-history");
-        $(".payment-history").not($paymentHistory).slideUp(300); // Hide other open details
-        $paymentHistory.slideToggle(300); // Toggle current payment history
+        $(".payment-history").not($paymentHistory).slideUp(300);
+        $paymentHistory.slideToggle(300);
     });
   });
 </script>
 
 <style>
-  /* Add a shadow and smooth transitions for order and payment history */
   .order-history, .payment-history {
       transition: all 0.3s ease-in-out;
   }
 
-  /* Hover effect for table rows */
   tbody tr:hover {
-      background-color: #f0fdf4; /* Light green */
+      background-color: #f0fdf4;
   }
 
-  /* Ensure consistent spacing */
   table th, table td {
       text-align: left;
       white-space: nowrap;
   }
 
-  /* Style the search input */
   #searchCustomer {
     max-width: 250px;
     font-size: 0.875rem;

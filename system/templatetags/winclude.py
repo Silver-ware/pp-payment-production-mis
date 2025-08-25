@@ -14,15 +14,12 @@ def include_with(context, template_name, data=None):
     if not template_name:
         raise TemplateSyntaxError("The 'include_with' tag requires a template name.")
 
-    # Load the template
     template = get_template(template_name)
 
-    # Merge the provided data into the existing context
     if data:
         new_context = context.flatten()
         new_context.update(data)
     else:
         new_context = context.flatten()
 
-    # Render the template with the combined context
     return template.render(new_context)

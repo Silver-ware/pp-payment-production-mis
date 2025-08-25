@@ -39,10 +39,9 @@ class ServiceFactory(factory.django.DjangoModelFactory):
     @post_generation
     def customization_options(self, create, extracted, **kwargs):
         if not create:
-            # Skip if the object is not persisted
+
             return
 
-        # Assign 2 to 5 customization options to this service
         options = CustomizationOption.objects.all()
         selected_options = random.sample(list(options), random.randint(2, 5))
         self.customization_options.set(selected_options)
@@ -100,34 +99,33 @@ class OrderFactory(DjangoModelFactory):
                     "specification": faker.word(),
                     "details": faker.sentence(),
                 }
-                for _ in range(random.randint(1, 5))  # Randomly create 1 to 5 specifications
+                for _ in range(random.randint(1, 5))
             ]
         }
     )
     status = factory.Iterator(['PENDING', 'IN PROGRESS', 'COMPLETED', 'CANCELLED'])
-    order_queue = None  # This will be set conditionally
+    order_queue = None
     deadline = factory.Faker('future_datetime', end_date='+30d')
-    completed_or_cancelled = None  # This will be set conditionally
+    completed_or_cancelled = None
     payment = None
 
     @factory.post_generation
     def set_fields(obj, create, extracted, **kwargs):
-        """Conditionally set `order_queue` and `completed_or_cancelled` fields."""
+        
         if not create:
             return
 
         if obj.status in ['COMPLETED', 'CANCELLED']:
-            # For completed or cancelled orders
-            obj.completed_or_cancelled = make_aware(datetime.now())
-            obj.order_queue = None  # Set order_queue to None
-        else:
-            # For non-completed/cancelled orders
-            max_queue = Order.objects.filter(status__in=['PENDING', 'IN PROGRESS']).aggregate(max_queue=models.Max('order_queue'))['max_queue']
-            # Increment the order queue based on the highest value found
-            obj.order_queue = (max_queue or 0) + 1
-            obj.completed_or_cancelled = None  # Keep completed_or_cancelled as None
 
-        # Save the object with the updated fields
+            obj.completed_or_cancelled = make_aware(datetime.now())
+            obj.order_queue = None 
+        else:
+
+            max_queue = Order.objects.filter(status__in=['PENDING', 'IN PROGRESS']).aggregate(max_queue=models.Max('order_queue'))['max_queue']
+
+            obj.order_queue = (max_queue or 0) + 1
+            obj.completed_or_cancelled = None 
+
         obj.save()
 
     
@@ -162,13 +160,13 @@ class InventoryCategoryFactory(factory.django.DjangoModelFactory):
         if not create:
             return
         if extracted:
-            # Use the passed-in list of equipment objects
+
             self.associated_equipment.set(extracted)
         else:
             equipments = Equipment.objects.all()
             selected_equipment = random.sample(list(equipments), random.randint(2, 5))
             self.associated_equipment.set(selected_equipment)
-            # Assign a random selection of equipment to this category
+
 
 
 
@@ -209,17 +207,17 @@ class ProductionFactory(factory.django.DjangoModelFactory):
         if extracted:
             self.materials.add(*extracted)
         else:
-            # Select materials from Inventory, ensuring there is a valid category
+
             self.materials.add(*Inventory.objects.order_by("?")[:3])
 
     @factory.lazy_attribute
     def equipment_assigned(self):
-        # Assign equipment based on a random selection from all available equipment
+
         return [{"equipment_id": eq.equipment_id} for eq in Equipment.objects.order_by("?")[:2]]
 
     @factory.lazy_attribute
     def quality_checks(self):
-        # Generate random quality check parameters
+
         num_checks = random.randint(2, 5)
         if self.status == "COMPLETED":
             return [

@@ -57,23 +57,20 @@
         e.preventDefault();
         const $supplierDetails = $(this).next(".supplier-details");
 
-        $(".supplier-details").not($supplierDetails).slideUp(300); // Hide other open details
-        $supplierDetails.slideToggle(300); // Toggle current supplier details
+        $(".supplier-details").not($supplierDetails).slideUp(300); 
+        $supplierDetails.slideToggle(300);
     });
   });
 </script>
 <style>
-  /* Add a shadow and smooth transitions for supplier details */
   .supplier-details {
       transition: all 0.3s ease-in-out;
   }
 
-  /* Hover effect for table rows */
   tbody tr:hover {
-      background-color: #f0fdf4; /* Light green */
+      background-color: #f0fdf4;
   }
 
-  /* Ensure consistent spacing */
   table th, table td {
       text-align: left;
       white-space: nowrap;

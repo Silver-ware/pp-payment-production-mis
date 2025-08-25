@@ -75,25 +75,21 @@
         $tabs.each(function (index) {
             const $btn = $(this);
 
-            // Set the first tab as active by default
+            //set the first tab as active by default
             if (index === 0) {
                 $btn.addClass('border-b-4 border-green-500 font-semibold');
                 $btn.find('.tab-label').removeClass('hidden');
             }
 
             $btn.on('click', function () {
-                // Deactivate all tabs
                 $tabs.removeClass('border-b-4 border-green-500');
                 $tabs.find('.tab-label').addClass('hidden');
 
-                // Activate the clicked tab
                 $btn.addClass('border-b-4 border-green-500 font-semibold');
                 $btn.find('.tab-label').removeClass('hidden');
 
-                // Hide all tab panes
                 $panes.addClass('hidden');
 
-                // Show the corresponding tab pane
                 $('#' + $btn.data('tab')).removeClass('hidden');
             });
         });

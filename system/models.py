@@ -14,10 +14,10 @@ class Customer(models.Model):
         return self.name
     
     def get_order_history(self):
-        return self.orders.all()  # Using the related_name
+        return self.orders.all()  #using the related_name
 
     def get_payment_history(self):
-        return Payment.objects.filter(order__customer=self)  # Filter payments by customer's orders
+        return Payment.objects.filter(order__customer=self)
     
 class Service(models.Model):
     service_id = models.AutoField(primary_key=True)
@@ -95,16 +95,13 @@ class Order(models.Model):
     completed_or_cancelled = models.DateTimeField(null=True)
 
     def save(self, *args, **kwargs):
-        # Ensure job_specifications are JSON-serializable
         if isinstance(self.job_specifications, dict):
             self.job_specifications = json.loads(
                 json.dumps(self.job_specifications, default=decimal_to_float)
             )
-        # Ensure deadline is timezone-aware
         if self.deadline and self.deadline.tzinfo is None:
             self.deadline = make_aware(self.deadline)
         super().save(*args, **kwargs)
-        # Ensure completed_or_cancelled is timezone-aware
         if self.completed_or_cancelled and self.completed_or_cancelled.tzinfo is None:
             self.completed_or_cancelled = make_aware(self.completed_or_cancelled)
 
@@ -127,14 +124,14 @@ class Payment(models.Model):
 
     payment_id = models.AutoField(primary_key=True)
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='payments')
-    amount = models.DecimalField(max_digits=10, decimal_places=2)  # Original payment amount
-    amount_paid = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)  # Amount actually paid
+    amount = models.DecimalField(max_digits=10, decimal_places=2) 
+    amount_paid = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     payment_method = models.ForeignKey(
         "PaymentMethod", on_delete=models.SET_NULL, null=True, blank=True, related_name='payments'
     )
     discount = models.DecimalField(
         max_digits=5, decimal_places=2, null=True, blank=True, default=0.00
-    )  # Discount value (amount or percentage)
+    ) 
     discount_type = models.CharField(
         max_length=10, choices=DISCOUNT_TYPE_CHOICES, null=True, blank=True
     )  # 'fixed' or 'percentage'
@@ -153,7 +150,6 @@ class Payment(models.Model):
         else:
             discount_amount = 0
 
-        # Ensure final price is not negative
         return max(self.amount - discount_amount, 0)
 
     def __str__(self):
@@ -275,7 +271,7 @@ class Supplier(models.Model):
     phone_number = models.CharField(max_length=20, null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
     address = models.TextField(null=True, blank=True)
-    additional_info = models.TextField(null=True, blank=True)  # Any extra details
+    additional_info = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return self.supplier_name

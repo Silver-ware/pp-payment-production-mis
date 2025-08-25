@@ -102,7 +102,6 @@ Please restock the material as soon as possible.
       $('#alerts-popover').removeClass('hidden');
     });
 
-    // Close the popover
     $('#close-popover').on('click', function () {
       $('#alerts-popover').addClass('hidden');
     });
@@ -113,7 +112,7 @@ Please restock the material as soon as possible.
 
       const formData = $(this).serialize();
       $.ajax({
-        url: '/contact-supplier/', // Add the URL for contacting the supplier
+        url: '/contact-supplier/',
         method: 'POST',
         data: formData,
         success: function () {

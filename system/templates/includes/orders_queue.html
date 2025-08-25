@@ -67,35 +67,31 @@
       const overlay = $(`<div class="fixed top-0 left-0 right-0 ${backgroundColor} text-white text-center p-3 z-50 transition-transform transform -translate-y-full" id="message-overlay"></div>`);
       overlay.append(message + ` <span class="font-semibold ${operationColor}"> ${operation_name}</span>`);
     
-      // Append the overlay to the body
       $('body').append(overlay);
     
-      // Small delay before showing the overlay
       setTimeout(function() {
           overlay.removeClass('-translate-y-full').addClass('translate-y-0');
       }, 100);
     
-      // Hide the overlay after 3 seconds
       setTimeout(function() {
           overlay.removeClass('translate-y-0').addClass('-translate-y-full');
           setTimeout(function() {
               overlay.remove();
-          }, 500); // Remove the overlay after the sliding animation
-      }, 3000); // Show the message for 3 seconds
+          }, 500);
+      }, 3000);
     }
 
     function checkSuperuser(callback) {
       $.ajax({
-        url: "{% url 'verify_superuser' %}", // Django URL for verifying superuser
+        url: "{% url 'verify_superuser' %}",
         type: "GET",
         headers: { "X-Requested-With": "XMLHttpRequest" },
         success: function(response) {
-          // Callback with superuser status
           callback(response.is_superuser);
         },
         error: function(xhr, status, error) {
           console.error("Failed to verify superuser status:", error);
-          callback(false); // Call back with false if there's an error
+          callback(false); 
         },
       });
     }  
@@ -109,23 +105,19 @@
       update: function (event, ui) {
           const order = [];
           $(".order-item-queue").each(function () {
-            // Only add the order if the array length is less than 5
             if (order.length < 5) {
                 order.push($(this).data("order-id"));
             }
           });
-          // Check if the order array exceeds 5
           if (order.length > 5) {
-              order.length = 5; // Truncate the array to a maximum of 5 items
+              order.length = 5;
           }
           console.log(order);
   
-          // Before sending, check if the user is a superuser
           checkSuperuser(function(isSuperuser) {
               if (isSuperuser) {
-                  // Send the new order to the server via AJAX
                   $.ajax({
-                      url: "{% url 'update_order_queue' %}",  // Django URL for updating order queue
+                      url: "{% url 'update_order_queue' %}",
                       method: "POST",
                       data: {
                           order: order,
@@ -135,7 +127,6 @@
                       success: function (response) {
                         $('#order-queue').html(response.orders_queue);
                           console.log("Order updated successfully.");
-                          // You can add any success message or UI change here
                       },
                       error: function (xhr, status, error) {
                           console.error("Error updating order:", error);
@@ -143,9 +134,8 @@
                       }
                   });
               } else {
-                // Refresh the #order-queue content
                 $.ajax({
-                    url: "{% url 'refresh_order_queue' %}", // Django URL to refresh order queue
+                    url: "{% url 'refresh_order_queue' %}",
                     method: "GET",
                     data: {page_pp: {{pending_progress.number}}},
                     success: function (response) {
@@ -163,7 +153,6 @@
     });
 
     
-    // Style the placeholder
     $("#order-list").sortable("option", "placeholder", {
       element: function () {
         return $("<div class='order-item-queue bg-gray-200 h-16 rounded-md'></div>")[0];
@@ -212,9 +201,9 @@
 <script>
   $(document).ready(function () {
       $('.pp-pagination-controls').on('click', 'a', function (event) {
-          event.preventDefault(); // Prevent default navigation behavior
+          event.preventDefault();
   
-          const url = $(this).attr('href'); // Get the href attribute of the clicked link
+          const url = $(this).attr('href');
   
           $.ajax({
               url: url,
@@ -222,7 +211,7 @@
               headers: { 'X-Requested-With': 'XMLHttpRequest' },
               success: function (data) {
                   if (data.html) {
-                      $('#order-queue').html(data.html); // Update the orders container
+                      $('#order-queue').html(data.html);
                   }
               },
               error: function (xhr, status, error) {

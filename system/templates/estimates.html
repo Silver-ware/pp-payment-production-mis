@@ -65,33 +65,24 @@
 
 <script>
   $(document).ready(function () {
-      // Handle customization form submission
       $('#customizationForm').on('submit', function (e) {
           e.preventDefault();
-          
-          // Get selected customization options
           const selectedOptions = $('#customizationOptions').val();
 
-          // Show the tabs section
           $('#tabsSection').show();
-
-          // Clear previous tabs
           $('#customizationTabs').find('.tab-item:not(:first)').remove();
           $('#customizationTabsContent').find('.tab-pane:not(#custom)').remove();
 
-          // Add tabs dynamically based on selected options
           selectedOptions.forEach(function(option) {
               const tabId = option + '-tab';
               const tabContentId = option + '-content';
 
-              // Add a new tab for each selected customization option
               $('#customizationTabs').append(`
                   <li class="tab-item">
                       <button class="tab-link py-2 px-4 border-b-2 text-gray-500 hover:text-blue-500 hover:border-blue-500" id="${tabId}">${option.replace('_', ' ').toUpperCase()}</button>
                   </li>
               `);
 
-              // Add the corresponding tab content for each option
               $('#customizationTabsContent').append(`
                   <div class="tab-pane" id="${tabContentId}">
                       <h5 class="font-medium text-lg">${option.replace('_', ' ').toUpperCase()} Pricing Options</h5>
@@ -104,7 +95,6 @@
               `);
           });
 
-          // Add event listeners for tab navigation
           $('.tab-link').on('click', function() {
               const targetTab = $(this).attr('id').replace('-tab', '');
               $('.tab-pane').removeClass('active');
@@ -114,10 +104,10 @@
           });
       });
 
-      // Move cursor between input fields in Custom tab
+      //move cursor between input fields in Custom tab
       $(document).on('keypress', '.custom-tab-table input', function (e) {
           const $this = $(this);
-          if (e.which === 13) { // Enter key pressed
+          if (e.which === 13) {
               let nextCell = $this.closest('td').next().find('input');
               if (!nextCell.length) {
                   nextCell = $this.closest('tr').next().find('td:first-child input');

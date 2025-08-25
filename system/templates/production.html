@@ -48,7 +48,6 @@
 
 <script>
     $(document).ready(function() {
-        // Search functionality
         $('#search-btn').on('click', function() {
             const query = $('#production-search').val();
             $.ajax({
@@ -56,7 +55,6 @@
                 method: 'GET',
                 data: { query },
                 success: function(response) {
-                    // Replace content with search results
                     $('.tab-content-container').html(response);
                 },
                 error: function() {
@@ -65,7 +63,6 @@
             });
         });
     
-        // Inventory Management Popover
         $('#inventory-management-btn').on('click', function() {
             const popover = $('#inventory-popover-container');
             popover.toggleClass('hidden');
@@ -86,7 +83,6 @@
             }
         });
     
-        // Notification Popover
         $('#notification-btn').on('click', function() {
             const popover = $('#notification-popover-container');
             popover.toggleClass('hidden');
@@ -152,11 +148,10 @@
     $(document).ready(function () {
         const tabs = $('.production-tab');
         const contents = $('.tab-content');
-        let activeTabs = ['job-scheduling']; // Initially, Job Scheduling is active.
+        let activeTabs = ['job-scheduling'];
 
-        let singleClickTimer; // Timer for differentiating single vs. double click
+        let singleClickTimer;
         const delay = 300;
-        // Mark Job Scheduling as active by default
         $('#job-scheduling').addClass('active');
         $('.production-tab[data-tab="job-scheduling"]').addClass('active');
     
@@ -165,18 +160,17 @@
             
             console.log("Current active tabs: " + activeTabs);
             if (singleClickTimer) {
-                clearTimeout(singleClickTimer); // If a double-click occurs, cancel the single-click action
-                singleClickTimer = null; // Reset the timer
-                handleDoubleClick(event, clickedTab); // Handle double-click
+                clearTimeout(singleClickTimer);
+                singleClickTimer = null;
+                handleDoubleClick(event, clickedTab);
             } else {
                 singleClickTimer = setTimeout(() => {
-                    handleSingleClick(event, clickedTab); // Handle single-click
-                    singleClickTimer = null; // Reset the timer after handling
+                    handleSingleClick(event, clickedTab);
+                    singleClickTimer = null;
                 }, delay);
             }
         });
 
-        // Functions to handle single and double clicks
         function handleSingleClick(event, clickedTab) {
             const tabId = clickedTab.data('tab');
             const content = $('#' + tabId);
@@ -184,9 +178,7 @@
             console.log('Single click detected');
             console.log("Single active tab, replacing content with: " + tabId);
         
-            // Remove active class from all tabs and contents, except for the clicked one
             activeTabs.forEach((tabId) => {
-                // Only remove the active class from the tab that is not clicked
                 if (tabId !== clickedTab.data('tab')) {
                     const currentActiveTab = $('.production-tab[data-tab="' + tabId + '"]');
                     const currentActiveContent = $('#' + tabId);
@@ -196,15 +188,12 @@
                 }
             });
         
-            // Activate the clicked tab and content
             clickedTab.addClass('active');
             content.addClass('active');
         
-            // Update activeTabs to only contain the clicked tab
-            activeTabs = [tabId];  // Make this the only active tab
+            activeTabs = [tabId]; 
             console.log(activeTabs);
 
-            // Job-scheduling
             if(activeTabs.includes("job-scheduling")){
                 $('.form-fields').removeClass("flex-col");
             }
@@ -217,40 +206,31 @@
             const content = $('#' + tabId);
             if (activeTabs.length === 2) {
                 if(!(activeTabs.includes(tabId))){
-                    // If two tabs are active, deactivate the first one and add the clicked tab
-                    const firstActiveTabId = activeTabs[0]; // Get the first active tab
+                    const firstActiveTabId = activeTabs[0];
                     const firstActiveTab = $('.production-tab[data-tab="' + firstActiveTabId + '"]');
                     const firstActiveContent = $('#' + firstActiveTabId);
             
-                    // Remove active class from the first active tab and its content
                     firstActiveTab.removeClass('active');
                     firstActiveContent.removeClass('active');
             
-                    // Replace it with the clicked tab
                     activeTabs.shift()
-                    activeTabs.push(tabId); // Replace the first active tab with the clicked tab
                     console.log(activeTabs);
-                    // Add the clicked tab to the activeTabs list
                     clickedTab.addClass('active');
                     content.addClass('active');
             
                 }
             } else if (activeTabs.length === 1) {
                 
-                // One active tab, click twice to add the new tab alongside
                 console.log("Two active tabs, adding new tab: " + tabId);
         
-                // Activate the clicked tab and content alongside the existing active ones
                 if (!activeTabs.includes(tabId)) {
                     clickedTab.addClass('active');
                     content.addClass('active');
         
-                    // Add the clicked tab to the active tabs list if not already added
                     activeTabs.push(tabId);
                     console.log(activeTabs);
                 }
             }
-            //Job Scheduling
             if(activeTabs.includes("job-scheduling")){
                 if($('#order-sidebar').css('flex-basis') !== '0px'){
                     $('#toggle-sidebar').click();

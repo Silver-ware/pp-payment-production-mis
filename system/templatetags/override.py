@@ -9,10 +9,8 @@ class OverrideNode(Node):
         self.content = content
 
     def render(self, context):
-        # Retrieve the original block content if it exists
         original_content = context.get(self.block_name, '')
 
-        # If content is passed to override, use it; otherwise, use the original
         if self.content:
             return format_html(self.content.render(context))
         return original_content
@@ -33,5 +31,4 @@ def do_override(parser, token):
     block_name = tokens[1]
     nodelist = parser.parse(('endoverride',))
 
-    # Check if there is content inside the override
     return OverrideNode(block_name, nodelist)

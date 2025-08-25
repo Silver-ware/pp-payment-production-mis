@@ -61,7 +61,6 @@
         var first_name = document.getElementById('first_name').value;
         var middle_initial = document.getElementById('middle_initial').value;
     
-        // Concatenate the values and set it to the hidden name field
         var full_name = (surname + ", " + first_name + " " + middle_initial).trim();
         document.getElementById('name').value = full_name;
       });
@@ -131,15 +130,14 @@
   </div>
   {% endif %}
   <script>
-    // Fade out the success message after 3 seconds
     document.addEventListener('DOMContentLoaded', function () {
       const successMessage = document.getElementById('success-message');
       if (successMessage) {
         setTimeout(() => {
           successMessage.style.transition = 'opacity 0.5s ease';
           successMessage.style.opacity = '0';
-          setTimeout(() => successMessage.remove(), 500); // Remove after fade-out
-        }, 3000); // 3 seconds delay before starting fade-out
+          setTimeout(() => successMessage.remove(), 500); 
+        }, 3000);
       }
     });
   </script>

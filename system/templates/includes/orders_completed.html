@@ -59,9 +59,9 @@
 <script>
   $(document).ready(function () {
       $('.cc-pagination-controls').on('click', 'a', function (event) {
-          event.preventDefault(); // Prevent default navigation behavior
+          event.preventDefault();
   
-          const url = $(this).attr('href'); // Get the href attribute of the clicked link
+          const url = $(this).attr('href');
   
           $.ajax({
               url: url,
@@ -69,7 +69,7 @@
               headers: { 'X-Requested-With': 'XMLHttpRequest' },
               success: function (data) {
                   if (data.html) {
-                      $('#completed-orders').html(data.html); // Update the orders container
+                      $('#completed-orders').html(data.html);
                   }
               },
               error: function (xhr, status, error) {

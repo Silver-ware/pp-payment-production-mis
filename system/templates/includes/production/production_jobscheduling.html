@@ -136,7 +136,6 @@
 <!-- Form Submission and Success Message -->
 <script>
     $(document).ready(function() {
-        // Collect data for submission
         $('#submit-production').on('click', function (e) {
             e.preventDefault();
             
@@ -162,13 +161,11 @@
 
             const csrfToken = $('meta[name="csrf-token"]').attr('content');
 
-            // Submit data via AJAX
             $.ajax({
                 url: '/submit-production/',
                 method: 'POST',
                 data: formData,
                 beforeSend: function (xhr) {
-                    // Set CSRF token in request header
                     xhr.setRequestHeader('X-CSRFToken', csrfToken);
                 },
                 success: function (response) {
@@ -208,21 +205,18 @@
             const overlay = $(`<div class="fixed top-0 left-0 right-0 ${backgroundColor} text-white text-center p-3 z-50 transition-transform transform -translate-y-full" id="message-overlay"></div>`);
             overlay.append(message + ` <span class="font-semibold ${operationColor}"> ${operation_name}</span>`);
           
-            // Append the overlay to the body
             $('body').append(overlay);
           
-            // Small delay before showing the overlay
             setTimeout(function() {
                 overlay.removeClass('-translate-y-full').addClass('translate-y-0');
             }, 100);
           
-            // Hide the overlay after 3 seconds
             setTimeout(function() {
                 overlay.removeClass('translate-y-0').addClass('-translate-y-full');
                 setTimeout(function() {
                     overlay.remove();
-                }, 500); // Remove the overlay after the sliding animation
-            }, 3000); // Show the message for 3 seconds
+                }, 500);
+            }, 3000);
         }
     });
 </script>
@@ -250,7 +244,6 @@
             }
             });
 
-            // Show or hide the dropdown based on matches
             if (hasMatch) {
             $dropdown.removeClass('hidden');
             } else {
@@ -258,28 +251,24 @@
             }
         });
 
-        // Handle dropdown item click
         $dropdown.on('click', '.dropdown-item', function () {
             const selectedValue = $(this).data('value');
             $inputField.val(selectedValue);
             $dropdown.addClass('hidden');
         });
 
-        // Hide dropdown when input loses focus
         $inputField.on('blur', function () {
             setTimeout(() => {
             $dropdown.addClass('hidden');
             }, 250);
         });
 
-        // Prevent dropdown from closing when clicking inside it
         $dropdown.on('mousedown', function (e) {
             e.preventDefault();
         });
 
 
         /// Equipment PopOver ///
-        
         $(document).on('click', '#equipment-dropdown .dropdown-item', function () {
             const selectedEquipment = $(this).data('value');
             const selectedEquipmentId = $(this).data('equipment-id');
@@ -288,11 +277,11 @@
     
             if (equipmentName) {
                 $.ajax({
-                    url: '/fetch-materials/',  // The URL endpoint to fetch the materials
+                    url: '/fetch-materials/',  /
                     method: 'GET',
                     data: { 'equipment_name': equipmentName },
                     success: function(response) {
-                        const materials = response.materials;  // List of materials from the server
+                        const materials = response.materials; 
                         $('#materials').html('<option value="" disabled selected>Select a materials.</option>');
                         materials.forEach(material => {
                             $('#materials').append(`<option class="hover:bg-green-700" value="${material.id}">${material.name}</option>`);
@@ -314,22 +303,18 @@
                 `);
             }
     
-            // Hide the dropdown after selection
             $('#equipment-dropdown').addClass('hidden');
             $('#equipment').addClass("text-green-700 font-semibold");
         });
     
-        // Toggle the equipment popover
         $('#popover-equipment-button').on('click', function () {
             $('#popover-equipments').toggleClass('hidden');
         });
     
-        // Remove equipment from the popover list
         $('#popover-equipments-list').on('click', '.remove-equipment', function () {
             $(this).parent('li').remove();
         });
     
-        // Hide dropdown when clicking outside
         $(document).on('click', function (e) {
             if (!$(e.target).closest('#equipment, #equipment-dropdown').length) {
                 $('#equipment-dropdown').addClass('hidden');
@@ -339,30 +324,24 @@
 
 
         /// Materials Pop Over ///
-
         let selectedMaterials = []; 
 
-        // Handle material selection
         $(document).on('change', '#materials', function() {
-            const selectedMaterialId = $(this).val();  // Get selected material ID
-            console.log(selectedMaterialId);
-            const selectedMaterialName = $(this).find('option:selected').text();  // Get selected material name
-            //console.log(selectedMaterialId);    
+            const selectedMaterialId = $(this).val(); 
+            {% comment %} console.log(selectedMaterialId); {% endcomment %}
+            const selectedMaterialName = $(this).find('option:selected').text();
 
-            // If material is not already selected, add it
             if (!selectedMaterials.some(material => material.id === selectedMaterialId)) {
                 selectedMaterials.push({ id: selectedMaterialId, name: selectedMaterialName });
-                updatePopover();  // Update the popover list
+                updatePopover(); 
             }
 
-            // Reset the selection
             $(this).addClass("text-green-700 font-semibold");
         });
 
-        // Update the popover with selected materials
         function updatePopover() {
             const popoverList = $('#popover-materials-list');
-            popoverList.empty();  // Clear current list in the popover
+            popoverList.empty(); 
 
             selectedMaterials.forEach(material => {
                 popoverList.append(`
@@ -374,14 +353,12 @@
         }
 
 
-        // Remove equipment from the popover list
         $('#popover-materials-list').on('click', '.remove-material', function () {
             $(this).parent('li').remove();
         });
 
-        // Show the popover when the button is clicked
         $('#popover-button').click(function() {
-            $('#popover-materials').toggle();  // Toggle visibility of the popover
+            $('#popover-materials').toggle();
         });
     });    
 </script>
@@ -391,13 +368,11 @@
 <!-- Side Bar and Drop and Drag functionality -->
 <script>
     $(document).ready(function () {
-        // Sidebar toggle logic
         $('#toggle-sidebar').click(function () {
             const sidebar = $('#order-sidebar');
             const isOpen = sidebar.css('flex-basis') !== '0px';
             sidebar.css('flex-basis', isOpen ? '0' : '25%');
             
-            // Adjust main content border
             if (isOpen) {
                 $('.job-scheduling-content').addClass('border-l-2');
                 $('#order-sidebar').removeClass('border-l-2');
@@ -407,7 +382,6 @@
                 $('#order-sidebar').addClass('border-l-2');
             }
     
-            // Add animation to button when sidebar is closed
             if (!isOpen) {
                 $('#toggle-sidebar').removeClass('animate-bounce');
             } else {
@@ -421,7 +395,6 @@
                 .toggleClass('fa-chevron-left', !isOpen);
         });
   
-        // Drag-and-drop functionality
         $('.order-item').on('dragstart', function (e) {
             const orderData = $(this).data();
             e.originalEvent.dataTransfer.setData('order', JSON.stringify(orderData));
@@ -444,7 +417,6 @@
             $('#order-service').text(orderData.service);
             $('#order-deadline').text(orderData.deadline);
 
-            // Show the form and hide the old dropbox
             $('#job-scheduling-form').removeClass('hidden');
             $('#job-dropbox').addClass('hidden');
 
@@ -453,7 +425,6 @@
                 .addClass('animate-bounce bg-green-600').find('i')
                 .removeClass('fa-chevron-left')
                 .addClass('fa-chevron-right');
-            // Automatically close the sidebar
             $('#order-sidebar').css('flex-basis', '0');
         });
 
@@ -475,7 +446,6 @@
                 .removeClass('fa-chevron-left')
                 .addClass('fa-chevron-right');
 
-            // Update order details with new order
             $('#order-id-detail').text(orderData.orderId);
             $('#order-customer').text(orderData.customer);
             $('#order-service').text(orderData.service);

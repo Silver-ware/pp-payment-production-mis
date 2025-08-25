@@ -76,24 +76,18 @@
 
 <script>
     $(document).ready(function() {
-        // Show the Service Tabs after confirmation
         $('#service-tabs').removeClass('hidden');
 
-        // Check if any tab is already active
         if ($('.service-tab.active-tab').length === 0) {
-            // If no tab is active, make the first tab active
             $('.service-tab').first().addClass('border-green-600 border-b-2 active-tab');
-            $('#pricing-form-0').removeClass('hidden'); // Show the first service's pricing form
+            $('#pricing-form-0').removeClass('hidden');
         }
 
-        // Tab click handling
         $('#service-tabs').on('click', '.service-tab', function() {
             var serviceIndex = $(this).data('service-index');
-            // Hide all pricing forms
             $('.service-pricing-form').addClass('hidden');
-            // Show the pricing form for the clicked tab
             $('#pricing-form-' + serviceIndex).removeClass('hidden');
-            // Toggle active state for tabs using Tailwind classes
+            
             $('.service-tab').removeClass('border-green-600 border-b-2');
             $(this).addClass('border-green-600 border-b-2');
         });
@@ -103,7 +97,6 @@
         }
 
         function afterMessage(textmessage, color){
-             // Append a success message
             const messagesDiv = $('#messages');
             const alert = $('<div>')
                 .addClass('alert absolute bottom-[2.5rem] right-[0.5rem] z-50 mx-10 px-4 py-2 text-green-800 bg-green-200 border border-green-300 rounded shadow-lg')
@@ -116,24 +109,20 @@
                         messagesDiv.append(alert);
                     });
                 } else {
-                    // If no alert exists, directly append the new one
                     messagesDiv.append(alert);
                 }
              setTimeout(() => alert.fadeOut(), 5000);
         }
 
-        // AJAX Form Submission Handling
         $('form').off('submit').on('submit', function (event) {
             event.preventDefault();
 
-            // Create the form data
             var form = $(this);
-            var formData = form.serialize();  // Serialize the form data
+            var formData = form.serialize(); 
 
-            // Handle button-specific data (e.g., add_pricing_option)
             var buttonName = event.originalEvent.submitter.name;
             console.log("Button Name Pressed: " + buttonName);
-            formData += '&' + buttonName + '=1';  // Append the submitter button name to the form data
+            formData += '&' + buttonName + '=1';
             
             $.ajax({
                 type: 'POST',
@@ -142,19 +131,16 @@
                 data: formData,
                 success: function (response) {
                     if (response.status === 'success') {
-                        console.log("Sucess ajax");
+                        // console.log("Sucess ajax");
                         if (response.add_pricing_option) {
                             console.log("Passed in pricing btn!!");
-                            // Update the pricing options displayed for the service
                             $('#service-tabs').replaceWith(response.service_tabs_html);
                             $('#service-tabs').removeClass('hidden');
 
-                            // Activate the correct tab using the provided `active_tab_index`
                             const activeTabIndex = response.active_tab_index;
                             $('.service-tab').removeClass('border-green-600 border-b-2 active-tab');
                             $(`.service-tab[data-service-index="${activeTabIndex}"]`).addClass('border-green-600 border-b-2 active-tab');
 
-                            // Show the correct pricing form
                             $('.service-pricing-form').addClass('hidden');
                             $(`#pricing-form-${activeTabIndex}`).removeClass('hidden');
 
@@ -163,7 +149,7 @@
 
                         }
                     } else if (response.status === 'error') {
-                        console.log("Erorr ajax operation");
+                        // console.log("Erorr ajax operation");
                         $('#service-input-section').replaceWith(response.service_form_html);
                         message = 'Select or input valid data!!';
                         afterMessage(message, 'red');
@@ -179,13 +165,12 @@
             console.log("Clicked");
             $.ajax({
                 type: 'POST',
-                url: '',  // Your server endpoint
+                url: '',
                 headers: { 'X-CSRFToken': getCSRFToken() },
                 data: { revert_to_service: true },
                 success: function (response) {
                     if (response.status === 'success') {
                         console.log("Success Revert!");
-                        // Replace the service form and hide service-tabs
                         $('#service-input-section').replaceWith(response.service_form_html);
                         $('#service-tabs').addClass('hidden');
                     }

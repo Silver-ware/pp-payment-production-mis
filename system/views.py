@@ -46,15 +46,12 @@ class CustomLoginView(LoginView):
     template_name = 'registration/login.html'
 
     def form_valid(self, form):
-        # Get the authenticated user
         user = form.get_user()
 
-        # Check if it's the first login for a superuser
         if user.is_superuser and user.is_staff and user.is_active and user.last_login is None:
-            # Log the user in and redirect to signup
             login(self.request, user)
             print("First Time Loggin in.")
-            return redirect('signup')  # Use redirect instead of resolve_url
+            return redirect('signup')
 
         # If not the first login, proceed with the default behavior
         return super().form_valid(form)
@@ -82,43 +79,31 @@ class SignUpView(SuccessMessageMixin, CreateView):
         )
         return super().form_valid(form)
     def form_invalid(self, form):
-        # Render the form with errors
         return self.render_to_response(self.get_context_data(form=form))
 
 def business_details(request):
     session_data = request.session.get('business_details', {})
     
     if 'business_details' in request.session:
-        print("Session Data:", request.session['business_details'])  # Debugging purpose
+        # print("Session Data:", request.session['business_details'])
 
-    # Handle the GET request to display the form
     if request.method == 'GET':
-        # Initialize form with existing session data (if any)
         form = BusinessDetailsForm(initial=session_data)
         return render(request, 'setup/business_details.html', {'form': form, 'session_data': session_data})
 
-    # Handle the POST request to process and save the form data in the session
     elif request.method == 'POST':
         form = BusinessDetailsForm(request.POST, request.FILES)
         if form.is_valid():
-            # Save form data to session (not database yet)
             request.session['business_details'] = form.cleaned_data
-            # messages.success(request, "Business details saved!")
-            return redirect('services_and_pricing')  # Redirect to next step
-        # If form is invalid, re-render the form with error messages
+            return redirect('services_and_pricing')
         else:
-            # messages.error(request, "Please correct the errors below.")
             return render(request, 'setup/business_details.html', {'form': form})
 
 def services_and_pricing(request):
-    # For resetting purposes
-    # request.session['services_data'] = [] 
-    
-    # Initialize session data
     if 'services_data' not in request.session:
         request.session['services_data'] = []
 
-    print(request.session.get('services_data'))
+    # print(request.session.get('services_data'))
 
     unlocked=False
     if(request.session['services_data'] != []):
@@ -128,23 +113,19 @@ def services_and_pricing(request):
     service_form = ServiceForm()
     pricing_option_form = PricingOptionForm()
 
-    # Handle POST
     if request.method == 'POST':
         if 'add_service' in request.POST:
             service_form = ServiceForm(request.POST)
             if service_form.is_valid():
-                # Save service data in session
                 customization_options = [
                     {'name': option, 'pricing_options': []} 
                     for option in service_form.cleaned_data['customization_options']
                 ]
-                # Save service data in session with structured customization options
                 service_data = {
                     'name': service_form.cleaned_data['name'],
                     'customization_options': customization_options,
                 }
 
-                # Append the new service data to the services_data list in the session
                 services_data = request.session.get('services_data', [])
                 services_data.append(service_data)
                 request.session['services_data'] = services_data
@@ -157,8 +138,7 @@ def services_and_pricing(request):
 
                 additional_data = {"reload_script": True}
                 unlocked = {"unlocked": True}
-                # Debugging: Check session data
-                print("Updated services_data:", request.session['services_data'])
+                # print("Updated services_data:", request.session['services_data'])
                 if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                     return JsonResponse({
                         'status': 'success',
@@ -167,7 +147,6 @@ def services_and_pricing(request):
                         'success_message': success_message,
                     })
             else:
-                # If form is invalid, return errors back to the client
                 if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                     return JsonResponse({
                         'status': 'error',
@@ -175,32 +154,26 @@ def services_and_pricing(request):
                     })
 
         elif 'add_pricing_option' in request.POST:
-              # Retrieve the services data stored in the session
               services_data = request.session.get('services_data', [])
-              print("Services Data:", services_data)  # Debugging
-              print("Type of services_data:", type(services_data))  # List kaba na piste ka
+              print("Services Data:", services_data)
+              print("Type of services_data:", type(services_data))
 
-              # Get the service index and customization option from the POST data
               service_index = request.POST.get('service_index')
-              customization_option_name = request.POST.get('customization_option')  # The selected customization option name
+              customization_option_name = request.POST.get('customization_option')
               description = request.POST.get('description')
               price = request.POST.get('price')
 
-              # Ensure service_index is provided and valid
               try:
                   service_index = int(service_index)
               except (TypeError, ValueError):
                   return JsonResponse({'status': 'error', 'message': 'Invalid service index provided.'})
 
-              # Ensure the service index exists in the session
               if service_index >= len(services_data):
                   return JsonResponse({'status': 'error', 'message': 'Service index out of range.'})
 
-              # Retrieve the current service
               current_service = services_data[service_index]
-              print("Current Service:", current_service)
+            #   print("Current Service:", current_service)
 
-              # Find the relevant customization option within the current service
               customization_option = next(
                   (opt for opt in current_service['customization_options'] if opt['name'] == customization_option_name),
                   None
@@ -209,21 +182,17 @@ def services_and_pricing(request):
               if customization_option:
                   print("Customization Option Found:", customization_option)
                   
-                  # Create the pricing data structure
                   pricing_data = {
                       'description': description,
                       'price': float(price) if price else 0.0,
                   }
 
-                  # Add the pricing data to the relevant customization option
                   customization_option.setdefault('pricing_options', []).append(pricing_data)
 
-                  # Save the updated services data back to the session
                   request.session['services_data'] = services_data
                   request.session.modified = True
 
-                  # Debugging updated service structure
-                  print("Updated Service Data:", services_data)
+                #   print("Updated Service Data:", services_data)
 
                   service_tabs_html = render_to_string('setup/partials/service_tabs.html', {'services_data': services_data})
                   # print("Updated Service Tabs HTML:", service_tabs_html)  # Debugging
@@ -239,17 +208,14 @@ def services_and_pricing(request):
                   else:
                       print("Not Ajax Operation")
               else:
-                  # Handle case where the customization option was not found
                   return JsonResponse({
                       'status': 'error',
                       'message': 'Customization option not found.',
                   })
 
         elif 'save_service' in request.POST:
-          # Get the current service and save it to services_data
             current_service = request.session.pop('current_service', None)
             if current_service:
-              # Avoid duplicates by ensuring current_service is not already in services_data
               services_data = request.session.get('services_data', [])
               if current_service not in services_data:
                   services_data.append(current_service)
@@ -262,10 +228,8 @@ def services_and_pricing(request):
                   'service_tabs_html': render_to_string('setup/partials/service_tabs.html', {'services_data': request.session['services_data']}), 
               })
         if 'revert_to_service' in request.POST:
-            # Prepare the service form to be sent back to the client
             additional_data = {"reload_script": True}
 
-            # Render the service form with the additional data
             service_form_html = render_to_string(
                 'setup/partials/service_form.html',
                 {'service_form': ServiceForm(), **additional_data}
@@ -279,7 +243,6 @@ def services_and_pricing(request):
                 })
             
 
-    # Render template
     return render(request, 'setup/services_and_pricing.html', {
         'unlocked': unlocked,
         'service_form': service_form,
@@ -306,13 +269,11 @@ def equipment(request):
         form = EquipmentForm(request.POST)
         if form.is_valid():
             equipment_data = form.cleaned_data
-            # Store the data in the session
             request.session['equipment'].append(equipment_data)
             request.session.modified = True
 
-            # Add a success message
             messages.success(request, f"Equipment '{equipment_data['name']}' added successfully!")
-            return redirect('equipment')  # Assumes 'equipment' is the name of this view's URL pattern
+            return redirect('equipment')
         else:
             return render(request, 'setup/equipment.html', {'form': form})
 
@@ -336,7 +297,6 @@ def inventory_and_category(request):
 
     inventory_data = request.session.get('inventory', {})
 
-    # Transform inventory data into a list of categories and items
     categories = []
     for category_name, items in inventory_data.items():
         categories.append({
@@ -354,7 +314,6 @@ def inventory_and_category(request):
             if category not in request.session['inventory']:
                 request.session['inventory'][category] = []
             
-            # Add item to category
             request.session['inventory'][category].append({
                 'name': inventory_data['name'],
                 'unit': inventory_data['unit_of_measurement'],
@@ -392,17 +351,11 @@ def supplier(request):
         if form.is_valid():
             supplier_data = form.cleaned_data
 
-            # Initialize the session key if it doesn't exist
-            
-
-            # Append the new data to the list
             request.session['supplier'].append(supplier_data)
-            request.session.modified = True  # Ensure the session is marked as modified
+            request.session.modified = True
 
-            # Show a success message
             messages.success(request, 'Supplier data saved successfully!')
 
-            # Redirect to the same page to review or modify data
             return redirect('supplier')
         else:
             return render(request, 'setup/setup.html', {'form': form})
@@ -422,7 +375,6 @@ def customer_prerecords(request):
     if 'customer' in request.session:
         print("Customer Data:", request.session['customer'])
 
-    # Ensure the session data for 'customer' is a list and append the new data
     if 'customer' not in request.session:
         request.session['customer'] = []
     
@@ -430,24 +382,20 @@ def customer_prerecords(request):
     if request.method == 'POST':
         form = CustomerForm(request.POST)
         if form.is_valid():
-            # Get the cleaned data from the form
             customer_data = form.cleaned_data
             
             request.session['customer'].append(customer_data)
-            request.session.modified = True  # Ensure the session is updated
+            request.session.modified = True
 
-            # Show a success message
             messages.success(request, 'Customer data saved successfully!')
 
-            # Redirect to the same page to review or modify data
             return redirect('customer_prerecords')
         else:
              return render(request, 'setup/customer_prerecords.html', {'form': form})
     else:
-        # Prefill form if there is existing data in the session
         customer_data = request.session.get('customer', None)
         if customer_data:
-            form = CustomerForm(initial=customer_data[-1])  # Prefill form with the most recent data
+            form = CustomerForm(initial=customer_data[-1])
         else:
             form = CustomerForm()
 
@@ -460,10 +408,8 @@ def system_settings(request):
     if request.method == "POST":
         form = SystemSettingsForm(request.POST)
         if form.is_valid():
-            # Save form data to the session
             request.session['system_settings'] = form.cleaned_data
 
-            # If AJAX request, send session data via JSON
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({
                     'modal_data': request.session.get('system_settings', {}),
@@ -479,7 +425,6 @@ def system_settings(request):
     
     system_settings = request.session.get('system_settings', {})
     formatted_settings = {key.replace('_', ' ').capitalize(): value for key, value in system_settings.items()}
-    # Retrieve all session data
     session_data = {
         'business_details': request.session.get('business_details', {}),
         'services_data': request.session.get('services_data', []),
@@ -498,7 +443,7 @@ def system_settings(request):
 def save_to_database(request):
     """Handles saving session data to models when 'Add to Database' is clicked."""
     try:
-        with transaction.atomic():  # Ensure all data is saved atomically
+        with transaction.atomic():
 
             # 1. Save Business Details
             business_details = request.session.get('business_details', {})
@@ -515,32 +460,25 @@ def save_to_database(request):
             # 2. Save Services, Customization Options, and Pricing Options
             services_data = request.session.get('services_data', [])
             for service_data in services_data:
-                # 1. Create the Service instance
                 service = Service.objects.create(name=service_data['name'])
 
-                # 2. Create or get the CustomizationOption instances
                 customization_options = []
                 for option in service_data['customization_options']:
-                    # Convert the option name to lowercase to avoid duplicates
                     option_name = option['name'].lower()
 
-                    # Get or create the CustomizationOption
                     customization_option, _ = CustomizationOption.objects.get_or_create(
                         name=option_name
                     )
                     customization_options.append(customization_option)
 
-                    # 3. Create the PricingOption objects for this CustomizationOption
                     for pricing in option.get('pricing_options', []):
-                        # Create the PricingOption with the Service instance
                         PricingOption.objects.create(
-                            service=service,  # Use the created Service instance
+                            service=service, 
                             customization_option=customization_option,
                             description=pricing['description'],
                             price=pricing['price'],
                         )
 
-                # 4. Associate CustomizationOptions with the Service
                 service.customization_options.set(customization_options)
 
 
@@ -556,19 +494,16 @@ def save_to_database(request):
             # 4. Save Inventory and Related Data
             inventory_data = request.session.get('inventory', {})
             for category_name, materials in inventory_data.items():
-                # Ensure category is unique
                 category, _ = InventoryCategory.objects.get_or_create(
                     category_name=category_name
                 )
                 for material in materials:
-                    # Ensure supplier is unique if provided
                     supplier = None
                     if material.get('supplier'):
                         supplier, _ = Supplier.objects.get_or_create(
                             supplier_name=material['supplier']
                         )
 
-                    # Save inventory material
                     Inventory.objects.create(
                         name=material['name'],
                         category=category,
@@ -591,7 +526,7 @@ def save_to_database(request):
                         'additional_info': supplier_data.get('additional_info'),
                     },
                 )
-                if not created:  # Update existing supplier with any missing fields
+                if not created:
                     for key, value in supplier_data.items():
                         if not getattr(supplier, key) and value:
                             setattr(supplier, key, value)
@@ -621,15 +556,14 @@ def save_to_database(request):
 
             # Clear session data after saving
             # request.session.clear()
-            print("DB Save!")
+            # print("DB Save!")
             return JsonResponse({
                 'success': True,
                 'message': 'All data has been successfully saved to the database.',
-                'redirect_url': '/dashboard'  # Replace with the actual dashboard URL
+                'redirect_url': '/dashboard'
             })
 
     except Exception as e:
-        # Log the error for debugging
         logging.error(f"Error saving data to database: {e}")
         return JsonResponse({
             'success': False,
@@ -644,7 +578,7 @@ from django.http import HttpResponseForbidden
 @login_required
 def verify_superuser(request):
     print(f"User: {request.user}") 
-    # Check if the user is authenticated and return superuser status
+    #check if the user is authenticated and return superuser status
     if request.user.is_authenticated:
         return JsonResponse({"is_superuser": request.user.is_superuser})
     else:
@@ -657,33 +591,29 @@ from django.utils.timezone import now
 from .models import Payment, Inventory, Order, Production
 
 def dashboard(request):
-    # Total revenue from completed payments
     total_revenue = Payment.objects.filter(status='PAID').aggregate(total=Sum('amount'))['total'] or 0
 
-    # Overdue payments from completed production jobs with pending payments
     completed_production_orders = Production.objects.filter(status='COMPLETED').values_list('order_id', flat=True)
     overdue_payments = (
         Payment.objects.filter(order_id__in=completed_production_orders, status='PENDING')
         .aggregate(total=Sum('amount'))['total'] or 0
     )
 
-    # Inventory items with low stock
     low_stock_items = Inventory.objects.filter(stock_level__lt=F('reorder_threshold'))
     print(low_stock_items)
 
-    # Recent orders (last 5)
+    # recent orders (last 5)
     recent_orders = Order.objects.order_by('-created_at')[:5]
 
     pending_tasks = Production.objects.filter(
         Q(status='IN_PROGRESS') | Q(status='ON_HOLD'),
         priority='HIGH'
-    ).select_related('order__customer', 'order__service')  # Optimize querying related data
+    ).select_related('order__customer', 'order__service')
 
-    # Retrieve the relevant data from the production, including customer and service
     pending_task_data = pending_tasks.values(
         'job_id', 'status', 'priority', 
-        'order__customer__name',  # Assuming `Customer` model has a `name` field
-        'order__service__name'    # Assuming `Service` model has a `name` field
+        'order__customer__name',
+        'order__service__name'
     )
 
     # print(pending_task_data)
@@ -699,10 +629,9 @@ def dashboard(request):
     revenue_labels = [entry['month'].strftime('%b %Y') for entry in monthly_revenue]
     revenue_data = [entry['total'] for entry in monthly_revenue]
 
-    # Order status breakdown
     order_status_data = Order.objects.values('status').annotate(count=Count('order_id')).order_by('status')
     order_status_counts = [status['count'] for status in order_status_data]
-    order_status_labels = ['Pending', 'In Progress', 'Completed', 'Cancelled']  # Adjust labels as per your data
+    order_status_labels = ['Pending', 'In Progress', 'Completed', 'Cancelled']
 
     context = {
         'total_revenue': float(total_revenue),
@@ -723,7 +652,7 @@ def dashboard(request):
 from django.db import models
 def orders_view(request):
     services = Service.objects.all()
-    customers = Customer.objects.all()  # Fetch all customers
+    customers = Customer.objects.all()
 
     if request.method == 'POST':
         customer_name = request.POST.get('name')
@@ -731,17 +660,14 @@ def orders_view(request):
         
         if customer_name.isdigit():
             try:
-                # Fetch the customer by ID (digit-based)
                 customer = Customer.objects.get(customer_id=customer_name)
             except Customer.DoesNotExist:
                 messages.error(request, "Customer not found.")
-                return redirect('orders')  # Redirect back if customer doesn't exist
+                return redirect('orders')
         else:
-            # If not a digit, proceed with the customer form
             customer_form = CustomerForm(request.POST)
 
             if customer_form.is_valid():
-                # Save or get customer data
                 customer_data = customer_form.cleaned_data
                 customer, created = Customer.objects.get_or_create(
                     name=customer_data['name'],
@@ -751,21 +677,16 @@ def orders_view(request):
                         'address': customer_data['address'],
                     }
                 )
-        # Check if the order form is valid
         if order_form.is_valid():
-            # Create the order with the customer reference
             order = order_form.save(commit=False)
             order.customer = customer
-            order.status = 'PENDING'  # Ensuring status is set to PENDING
+            order.status = 'PENDING'
 
-            # Get the max order queue number and assign the next value
             max_order_queue = Order.objects.aggregate(max_queue=models.Max('order_queue'))['max_queue'] or 0
-            order.order_queue = max_order_queue + 1  # Assign the next queue number
+            order.order_queue = max_order_queue + 1
 
-            # Save the order
             order.save()
 
-            # Use Django messages to pass success information
             messages.success(
                 request,
                 f"Order #{order.order_id} has been"
@@ -773,7 +694,6 @@ def orders_view(request):
             return redirect('orders')
 
         else:
-            # Print errors for debugging
             print("Invalid")
             print("Customer Form Errors:", customer_form.errors)
             print("Order Form Errors:", order_form.errors)
@@ -814,29 +734,24 @@ def cancel_order(request, order_id, is_authorized=False):
 
     if order.status != "CANCELLED" and (request.user.is_superuser or is_authorized):
         try:
-            # Update order status to cancelled and queue
             order.status = "CANCELLED"
             order.order_queue = None 
             order.completed_or_cancelled = timezone.now()
             order.save()
 
-            # Re-sort the orders after cancellation
-            # Fetch the updated list of non-cancelled, non-completed orders and re-order them
             pending_progress_orders = Order.objects.exclude(status__in=["CANCELLED", "COMPLETED"]).order_by('order_queue')
             
             # Reassign the `order_queue` for each order in the list
             for index, order in enumerate(pending_progress_orders):
-                order.order_queue = index + 1  # Reassign the queue position (1-based index)
+                order.order_queue = index + 1 
                 order.save()
 
-            # Get the page number from the POST data, default to 1 if not provided
             page_number_pp = request.POST.get('page_pp', 1)
 
             # Paginate the updated list of orders
             paginator_pp = Paginator(pending_progress_orders, 10)
             paginated_pp = paginator_pp.get_page(page_number_pp)
 
-            # Render the updated orders queue
             rendered_pp = render_to_string('includes/orders_queue.html', {'pending_progress': paginated_pp}, request=request)
 
             return JsonResponse({
@@ -845,7 +760,6 @@ def cancel_order(request, order_id, is_authorized=False):
                 "orders_queue": rendered_pp
             })
         except Exception as e:
-            # Handle unexpected errors
             return JsonResponse({
                 "success": False,
                 "message": f"An error occurred: {str(e)}"
@@ -871,17 +785,15 @@ def authorize_cancel(request):
             print(user)
             
             if user is not None and user.is_superuser:
-                # Extract the order ID from the POST data
                 order_id = request.POST.get('order_id')
                 if not order_id:
                     print("No ID")
                     return JsonResponse({'status': 'error', 'message': 'Order ID not provided.'}, status=400)
 
-                # Call the cancel_order view directly
                 print(order_id)
                 response = cancel_order(request, order_id, is_authorized=True)
                 print(response)
-                return response  # Return the JsonResponse from the cancel_order view
+                return response
             else:
                 print("Not Auth")
                 return JsonResponse({'status': 'error', 'message': 'Invalid superuser credentials.'}, status=403)
@@ -897,33 +809,27 @@ from django.views.decorators.http import require_POST
 @require_POST
 def update_order_queue(request):
     if request.user.is_superuser:
-        # Get the order list from the POST data
-        new_order = request.POST.getlist('order[]')  # Assuming 'order' is passed as a list
+        new_order = request.POST.getlist('order[]') 
         
-        # Get the current page number (default to 1 if not provided)
         page_number_pp = int(request.POST.get('page_pp', 1))
         items_per_page = 10
-        # Calculate the starting position for the order_queue
         start_position = (page_number_pp - 1) * items_per_page + 1
 
-        # Update the order_queue for each order
         for index, order_id in enumerate(new_order):
             order = Order.objects.get(order_id=order_id)
-            order.order_queue = start_position + index  # Set the new order_queue position
+            order.order_queue = start_position + index
             order.save()
 
-        # Fetch the updated order queue
         pending_progress_orders = Order.objects.exclude(status__in=["CANCELLED", "COMPLETED"]).order_by('order_queue')
         paginator_pp = Paginator(pending_progress_orders, 10)
         paginated_pp = paginator_pp.get_page(page_number_pp)
 
-        # Render the updated orders queue HTML
         updated_html = render_to_string('includes/orders_queue.html', {'pending_progress': paginated_pp}, request=request)
 
         return JsonResponse({
             "success": True,
             "message": "Order queue updated successfully.",
-            "orders_queue": updated_html  # Return the new HTML to update the #order-queue
+            "orders_queue": updated_html
         })
     else:
         return JsonResponse({
@@ -948,7 +854,7 @@ def refresh_order_queue(request):
 
 
 def get_paginated_orders(request):
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':  # Check if AJAX
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         if request.GET.get('page_pp'):
             pending_progress_orders = Order.objects.exclude(status__in=["CANCELLED", "COMPLETED"]).order_by('order_queue')
             paginator_pp = Paginator(pending_progress_orders, 10)
@@ -1009,12 +915,11 @@ def search_orders(request):
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         query = request.GET.get('query', '').strip()
         if query:
-            # Filter orders by query (you can customize the fields being searched)
             search_results = Order.objects.filter(
                 Q(service__name__icontains=query) | 
                 Q(customer__name__icontains=query) |
                 Q(status__icontains=query)
-            )[:10]  # Limit results to 10
+            )[:10] 
 
             html = render_to_string('includes/orders_search_results.html', {'orders': search_results})
             return JsonResponse({'html': html})
@@ -1027,7 +932,6 @@ from .models import Production, Inventory, Order
 from .forms import ProductionForm
 from django.views.decorators.csrf import csrf_exempt
 
-# View for Production page
 def production(request):
     orders = Order.objects.exclude(status__in=["CANCELLED", "COMPLETED"]).order_by('order_queue')
     materials = Inventory.objects.all()
@@ -1048,24 +952,22 @@ import json
 def submit_production(request):
     if request.method == 'POST':
         data = request.POST
-        materials_data = request.POST.getlist('materials[]')  # Get materials as a list
+        materials_data = request.POST.getlist('materials[]')
         equipment_data = json.loads(request.POST.get('equipment_assigned', '[]'))
-        quality_checks_data = json.loads(request.POST.get('quality_checks', '[]'))  # Fetch quality checks data if provided
+        quality_checks_data = json.loads(request.POST.get('quality_checks', '[]')) 
 
-        # Create a new Production instance
         production = Production(
-            order_id=data.get('order'),  # Assuming `order` is passed as the ID
+            order_id=data.get('order'),
             equipment_assigned=equipment_data,
-            status='IN_PROGRESS',  # Set the default status
-            priority=data.get('priority', 'MODERATE'),  # Default priority if not provided
-            quality_checks=quality_checks_data or [],  # Default to an empty list if not provided
+            status='IN_PROGRESS',
+            priority=data.get('priority', 'MODERATE'),
+            quality_checks=quality_checks_data or [],
         )
         production.save()
 
-        # Add materials to the ManyToManyField
         if materials_data:
-            materials = Inventory.objects.filter(pk__in=materials_data)  # Fetch Inventory objects
-            production.materials.set(materials)  # Assign materials to Production
+            materials = Inventory.objects.filter(pk__in=materials_data)
+            production.materials.set(materials) 
 
         order = Order.objects.get(order_id=data.get('order'))
         order.status = 'IN_PROGRESS'
@@ -1091,38 +993,31 @@ def submit_production(request):
 def fetch_materials(request):
     equipment_name = request.GET.get('equipment_name')
     if equipment_name:
-        # Retrieve the selected equipment
         equipment = Equipment.objects.get(name=equipment_name)
         print(equipment)
         
-        # Fetch all categories associated with the selected equipment
         categories = InventoryCategory.objects.filter(associated_equipment=equipment)
         print(categories)
         
-        # Initialize a list to store the materials
         materials_list = []
         
-        # Loop through each category and get related materials
         for category in categories:
-            materials = category.get_related_inventory()  # This function fetches materials
+            materials = category.get_related_inventory() 
             for material in materials:
                 materials_list.append({
                     'id': material.material_id,
                     'name': material.name,
                 })
         
-        # Return the materials as JSON
         return JsonResponse({'materials': materials_list})
     return JsonResponse({'error': 'Equipment ID not provided'}, status=400)
 
 def filter_by_priority(request):
     priority = request.GET.get('priority')
     
-    # Ensure valid priority input
     if priority not in dict(Production.PRIORITY_CHOICES).keys():
         return JsonResponse({'error': 'Invalid priority value'}, status=400)
 
-    # Filter based on the priority
     productions = Production.objects.filter(priority=priority)
     production_data = [{'job_id': p.job_id, 'priority': p.priority} for p in productions]
     return JsonResponse({'productions': production_data})
@@ -1135,9 +1030,8 @@ def filter_by_status(request):
     return JsonResponse({'productions': production_data})
 
 def fetch_quality_checks(request, production_id):
-    # Fetch quality checks for the selected production
     production = Production.objects.get(job_id=production_id)
-    quality_checks = production.quality_checks  # Assuming it's a JSONField
+    quality_checks = production.quality_checks
     print(quality_checks)
     return JsonResponse({"quality_checks": quality_checks, "job_id": production_id})
 
@@ -1158,7 +1052,6 @@ def save_quality_check(request, job_id, parameter):
         production = Production.objects.get(job_id=job_id)
         quality_checks = production.quality_checks 
 
-        # Check if the quality check already exists
         for i, check in enumerate(quality_checks):
             if check['parameter'] == parameter:
                 quality_checks[i] = {
@@ -1169,7 +1062,6 @@ def save_quality_check(request, job_id, parameter):
                 save_type = "Modified"
                 break
         else:
-            # If the quality check doesn't exist, create a new one
             quality_checks.append({
                 'parameter': request.POST.get('parameter'),
                 'result': request.POST.get('result'),
@@ -1181,7 +1073,7 @@ def save_quality_check(request, job_id, parameter):
         production.save()
 
         production = Production.objects.get(job_id=job_id)
-        quality_checks = production.quality_checks  # Assuming it's a JSONField
+        quality_checks = production.quality_checks
 
         return JsonResponse({"quality_checks": quality_checks, "job_id": job_id, "save_type": save_type})
 
@@ -1225,10 +1117,8 @@ def inventory_management(request):
     organized_inventory = {}
 
     for category in categories:
-        # Get the related inventory items for each category
         inventory_items = category.get_related_inventory()
 
-        # Organize inventory items by category
         organized_inventory[category.category_name] = [
             {
                 "name": item.name,
@@ -1259,13 +1149,13 @@ def contact_supplier(request):
         supplier_name = request.POST.get("supplier_name")
         material_name = request.POST.get("material_name")
         message = request.POST.get("message")
-        # Add logic to send email or store the message
+        
         return JsonResponse({"status": "success", "message": "Message sent successfully"})
     return JsonResponse({"status": "error", "message": "Invalid request"})
 
 
 def crm_view(request):
-    customers = Customer.objects.all()  # Fetch all customers
+    customers = Customer.objects.all() 
     return render(request, 'crm.html', {'customers': customers})
 
 # PAYMENT VIEWS
@@ -1288,10 +1178,8 @@ def new_payment(request):
             status = form.cleaned_data['status']
             payment_date = form.cleaned_data['payment_date']
 
-            # Retrieve the order object
             order = Order.objects.get(id=order_id)
 
-            # Create the payment record
             payment = Payment.objects.create(
                 order=order,
                 amount=amount,
@@ -1300,13 +1188,11 @@ def new_payment(request):
                 payment_date=payment_date
             )
 
-            # Update the order status if fully paid
             if status == 'PAID' and order.total_amount == amount:
                 order.status = 'PAID'
                 order.save()
 
-            # Redirect or respond with success message
-            return redirect('payment_history')  # Redirect to payment history page
+            return redirect('payment_history')
         
         else:
             return render(request, 'payments/new_payment.html', {'form': form})

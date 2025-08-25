@@ -36,25 +36,21 @@
       {% if unlocked %}
         <script>
           $(document).ready(function () {
-            // Get the current page identifier
             var pageId = window.location.pathname;
             
-            // Check if the animation has been performed on this specific page in this session
             if (!sessionStorage.getItem(pageId + '_animationComplete') || sessionStorage.getItem('formSubmitted')) {
               console.log("animate");
-              // Run the animation if it's not already done
               $("#lock").fadeOut(1000, function () {
-                $(this).remove(); // Remove the lock div after fade out
+                $(this).remove();
                 $('#next').css('transition', 'transform 0.5s ease') 
                   .css('transform', 'scale(1.3)') 
-                  .delay(500) // Wait for the transition to finish
+                  .delay(500) 
                   .queue(function (next) {
                     $(this).css('transform', 'scale(1)')
                     .removeAttr('style');
                     next();
                   });
         
-                // Mark the animation as completed for this page
                 sessionStorage.setItem(pageId + '_animationComplete', 'true');
               });
             }else{
@@ -67,7 +63,6 @@
         {% comment %} Reset the Flag {% endcomment %}
         <script>
           $(document).ready(function () {
-            // Get the current page identifier
             var pageId = window.location.pathname;
             sessionStorage.setItem(pageId + '_animationComplete', 'false');
           });

@@ -28,11 +28,9 @@
               if (panelId) {
                 var panelElement = document.getElementById(panelId);
                 
-                // Check if the element with the panelId exists
                 if (panelElement) {
                   panelElement.addEventListener('submit', function() {
                     console.log("panel Submitted");
-                    // Set the sessionStorage flag when this specific panel is submitted
                     sessionStorage.setItem('formSubmitted', 'true');
                     sessionStorage.setItem('isFormSubmitted', 'true');
                   });
@@ -45,50 +43,43 @@
 
               const slideDiv = document.getElementById('slide');
     
-            // Check if the form was submitted (using sessionStorage)
             if (!sessionStorage.getItem('formSubmitted')) {
               console.log("Slide");
-              // Use GSAP to animate the slide-in effect
               gsap.fromTo(slideDiv, {
-                x: '100%',  // Start from the right
-                opacity: 0  // Start from invisible
+                x: '100%',
+                opacity: 0
               }, {
-                x: '0%',  // Slide to the center (normal position)
-                opacity: 1,  // Make the div visible
-                duration: 1,  // Duration of the animation (1 second)
-                ease: 'power2.out',  // Easing for smooth animation
+                x: '0%',
+                opacity: 1,
+                duration: 1,
+                ease: 'power2.out',
               });
             } else{
               slideDiv.style.opacity = "1";
             }
 
             window.addEventListener('beforeunload', function() {
-              // Clear the session storage only if the page is not reloading after form submission
               if (!sessionStorage.getItem('isFormSubmitted')) {
                 sessionStorage.removeItem('formSubmitted');
                 console.log("Form Cause");
               }
 
-              // Reset the custom flag after the page unload
               sessionStorage.removeItem('isFormSubmitted');
             });
   
               const leftSection = document.getElementById('left-section');
           
-              // Define two gradient states
               const gradient1 = '{{prev_background}}';
               const gradient2 = '{{next_background}}';
           
-              // Set initial gradient
               leftSection.style.background = gradient1;
           
-              // Use GSAP to animate the gradient morphing
               gsap.to(leftSection, {
-                duration: 2,  // Duration of the transition (2 seconds)
-                backgroundImage: gradient2,  // Target gradient
-                ease: 'power1.inOut',  // Easing function
-                repeat: -1,  // Repeat the effect
-                yoyo: true,  // Make the effect reverse (morph back to the original gradient)
+                duration: 2,
+                backgroundImage: gradient2,
+                ease: 'power1.inOut',
+                repeat: -1,
+                yoyo: true,
               });
             });
           </script>
@@ -131,7 +122,7 @@
           {% endblock %}
           <style>
             .input:focus-within div > *:not(span){
-              transform: scale(1.2); /* Slightly enlarge the icon */
+              transform: scale(1.2);
             }
         </style>
       </div>

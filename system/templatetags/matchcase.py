@@ -8,20 +8,18 @@ class MatchNode(Node):
         self.cases = cases
 
     def render(self, context):
-        # Resolve the variable from the context
         try:
             value = context[self.variable_name]
         except KeyError:
             raise TemplateSyntaxError(f"Variable '{self.variable_name}' not found in context.")
 
-        # Iterate through cases and match patterns
         for pattern, nodelist in self.cases:
-            if pattern == "_":  # Default case
+            if pattern == "_":
                 return nodelist.render(context)
             if str(value) == pattern:
                 return nodelist.render(context)
 
-        return ""  # Return empty string if no match
+        return ""
 
 @register.tag(name="match")
 def do_match(parser, token):

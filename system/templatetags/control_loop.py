@@ -8,7 +8,7 @@ class ContinueIfNode(Node):
 
     def render(self, context):
         if self.condition.resolve(context):
-            context['loop_continue'] = True  # Signal the loop to continue
+            context['loop_continue'] = True 
         return ""
 
 class BreakIfNode(Node):
@@ -17,7 +17,7 @@ class BreakIfNode(Node):
 
     def render(self, context):
         if self.condition.resolve(context):
-            context['loop_break'] = True  # Signal the loop to break
+            context['loop_break'] = True
         return ""
 
 @register.tag(name="continue_if")

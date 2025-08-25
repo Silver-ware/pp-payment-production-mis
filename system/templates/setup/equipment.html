@@ -129,50 +129,45 @@
         const filteredList = equipmentList.filter(equipment => equipment.toLowerCase().includes(value));
 
         if (filteredList.length > 0) {
-            // Show filtered options in the dropdown
             filteredList.forEach(equipment => {
                 const option = document.createElement('div');
                 option.textContent = equipment;
                 option.classList.add('dropdown-item');
                 option.addEventListener('click', function() {
                     inputField.value = equipment;
-                    customPrompt.classList.add('hidden');  // Hide custom prompt
+                    customPrompt.classList.add('hidden');
                 });
                 dropdown.appendChild(option);
             });
 
-            // Show the dropdown if there are results
             dropdown.classList.remove('hidden');
         } else {
-            // Show the "Add Custom Equipment" prompt if no results match
             dropdown.classList.add('hidden');
             customPrompt.classList.remove('hidden');
         }
     });
 
-    // Hide dropdown when the input is not focused
     inputField.addEventListener('blur', function() {
         setTimeout(() => {
             dropdown.classList.add('hidden');
         }, 250);
     });
 
-    // Handle adding custom equipment
     addCustomEquipmentBtn.addEventListener('click', function() {
         const customName = inputField.value.trim();
         if (customName && !equipmentList.includes(customName)) {
-            equipmentList.push(customName);  // Add custom equipment to the list
+            equipmentList.push(customName);
             const option = document.createElement('div');
             option.textContent = customName;
             option.classList.add('dropdown-item p-8 cursor-pointer');
             option.addEventListener('click', function() {
                 inputField.value = customName;
-                dropdown.innerHTML = '';  // Clear dropdown after selection
-                customPrompt.classList.add('hidden');  // Hide custom prompt
+                dropdown.innerHTML = '';
+                customPrompt.classList.add('hidden');
             });
             dropdown.appendChild(option);
-            inputField.value = customName;  // Set custom value to input field
-            customPrompt.classList.add('hidden');  // Hide the button
+            inputField.value = customName;
+            customPrompt.classList.add('hidden');
         }
     });
   });
@@ -200,15 +195,14 @@
   {% endif %}
   
   <script>
-    // Fade out the success message after 3 seconds
     document.addEventListener('DOMContentLoaded', function () {
       const successMessage = document.getElementById('success-message');
       if (successMessage) {
         setTimeout(() => {
           successMessage.style.transition = 'opacity 0.5s ease';
           successMessage.style.opacity = '0';
-          setTimeout(() => successMessage.remove(), 500); // Remove after fade-out
-        }, 3000); // 3 seconds delay before starting fade-out
+          setTimeout(() => successMessage.remove(), 500);
+        }, 3000); 
       }
     });
   </script>

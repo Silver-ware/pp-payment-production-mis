@@ -10,20 +10,15 @@ class RestrictAllExceptAdminSignupMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        # Ignore requests for static files and favicon
         if re.match(r"^/(static/|favicon\.ico)", request.path):
             return self.get_response(request)
 
-        # Check if a superuser exists
         superuser_exists = User.objects.filter(is_staff=True, is_active=True, is_superuser=True).exists()
 
-        # Allow access to 'admin_signup' path even if no superuser exists
-        admin_signup_path = reverse('admin_signup')  # Replace with your actual URL name
+        admin_signup_path = reverse('admin_signup')
         if not superuser_exists and request.path != admin_signup_path:
-            # Redirect to 'admin_signup' if no superuser exists and the path is not 'admin_signup'
             return redirect(admin_signup_path)
 
-        # Continue processing the request if conditions are not met
         return self.get_response(request)
 
 class LoginRequiredMiddleware:
@@ -47,15 +42,12 @@ class RestrictLoginPathMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        # Define the restricted login path
-        login_path = reverse('login')  # Adjust this to your login path name if different
+        login_path = reverse('login')
 
         # Check if the user is authenticated and attempting to access the login path
         if request.user.is_authenticated and request.path == login_path:
-            # Redirect authenticated users to the dashboard
             return redirect('dashboard')
 
-        # Continue processing the request if the path is not restricted
         return self.get_response(request)
     
 class RestrictSetupAdminRegisterMiddleware:
@@ -63,7 +55,6 @@ class RestrictSetupAdminRegisterMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        # Ignore requests for static files and favicon
         if re.match(r"^/(static/|favicon\.ico)", request.path):
             return self.get_response(request)
 
@@ -71,16 +62,13 @@ class RestrictSetupAdminRegisterMiddleware:
         superuser_exists = User.objects.filter(is_staff=True, is_active=True, is_superuser=True).exists()
 
         # Check if the requested path matches '/setup/admin/register'
-        restricted_path = reverse('admin_signup')  # Change this to your actual URL name
+        restricted_path = reverse('admin_signup')
         if superuser_exists and request.path == restricted_path:
             if request.user.is_authenticated:
-                # If the user is authenticated, redirect to dashboard
                 return redirect('dashboard')
             else:
-                # If the user is not authenticated, redirect to login
                 return redirect('login')
 
-        # Continue processing the request if the path is not restricted
         return self.get_response(request)
 
 class RestrictSetupPathsMiddleware:
@@ -94,7 +82,6 @@ class RestrictSetupPathsMiddleware:
             SystemSettings.objects.exists()
         )
 
-        # List of restricted setup paths
         restricted_paths = [
             reverse('business_details'),
             reverse('services_and_pricing'),
@@ -106,14 +93,10 @@ class RestrictSetupPathsMiddleware:
             reverse('save_to_database'),
         ]
 
-        # Restrict access if data exists and the path matches any restricted path
         if data_exists and request.path in restricted_paths:
             if request.user.is_authenticated:
-                # Redirect authenticated users to the dashboard
                 return redirect('dashboard')
             else:
-                # Redirect unauthenticated users to the login page
                 return redirect('login')
 
-        # Continue processing the request if conditions are not met
         return self.get_response(request)

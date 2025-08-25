@@ -139,15 +139,13 @@
             {% include 'setup/partials/sessions_data.html' %}
             <!-- Action Buttons -->
             <div class="flex justify-end mt-4">
-              <!-- Cancel Button -->
               <button id="cancel_modal" class="flex items-center px-4 py-2 bg-gray-500 text-white rounded mr-2">
-                  <i class="fas fa-times-circle mr-2"></i> <!-- Font Awesome cancel icon -->
+                  <i class="fas fa-times-circle mr-2"></i>
                   Cancel
               </button>
 
-              <!-- Add to Database Button -->
               <button type="submit" id="add_to_database" class="flex items-center px-4 py-2 bg-green-500 text-white rounded">
-                  <i class="fas fa-database mr-2"></i> <!-- Font Awesome database icon -->
+                  <i class="fas fa-database mr-2"></i>
                   Add to Database
               </button>
             </div>
@@ -157,11 +155,10 @@
 </form>    
   <script>
     $(document).ready(function () {
-      // Handle form submission
       $('#system_settings_form').on('submit', function (e) {
         e.preventDefault();
 
-        const formData = $(this).serialize(); // Serialize form data
+        const formData = $(this).serialize();
 
         $.ajax({
             url: '',
@@ -178,13 +175,10 @@
             error: function (xhr, status, error) {
                 console.error('Error:', error);
             },
-            // Handle invalid form errors
             complete: function(response) {
               if(response.responseJSON && response.responseJSON.form_errors) {
-                  // Assuming `form_errors` is a dictionary, you can loop over the errors and display them
                   var errors = response.responseJSON.form_errors;
                   for (var field in errors) {
-                      // For each field, append error message to a specific location (e.g., under the field)
                       $("#" + field + "_error").text(errors[field].join(", "));
                   }
               }
@@ -195,23 +189,22 @@
       function openModal() {
         $('#confirmationModal').removeClass('hidden');
       }
-      // Close
+      
       const cancelButton = document.getElementById('cancel_modal');
       cancelButton.addEventListener('click', (e) => {
         e.preventDefault();
         $('#confirmationModal').addClass('hidden');
       });
 
-      // Handle "Add to Database" button click
       $("#saveForm").on("submit", function (e) {
-        e.preventDefault(); // Prevent default form submission
+        e.preventDefault();
     
         $.ajax({
-            url: "{% url 'save_to_database' %}", // Use Django's URL template tag
+            url: "{% url 'save_to_database' %}",
             type: 'POST',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRFToken': getCSRFToken() // Helper function to retrieve CSRF token
+                'X-CSRFToken': getCSRFToken()
             },
             success: function (response) {
               if (response.success) {
@@ -230,16 +223,13 @@
           return $('input[name="csrfmiddlewaretoken"]').val(); 
       }
       
-      // Open the modal when data is successfully saved
       function showSuccessModal(message, redirectUrl) {
         $("#modalMessage").text(message);
 
-        // Set the redirect button action
         $("#redirectToDashboard").off("click").on("click", function () {
             window.location.href = redirectUrl;
         });
 
-        // Show the modal
         $("#successModal").removeClass("hidden");
       }
     });

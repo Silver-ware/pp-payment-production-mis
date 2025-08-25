@@ -106,7 +106,6 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // Safely retrieve the JSON data
         const revenueLabels = JSON.parse(document.getElementById('revenueLabels').textContent);
         const revenueData = JSON.parse(document.getElementById('revenueData').textContent);
         const orderStatusData = JSON.parse(document.getElementById('orderStatusData').textContent);
@@ -118,7 +117,6 @@
         console.log("Order Status Data:", orderStatusData);
         console.log("Order Status Labels:", orderStatusLabels);
 
-        // Initialize Revenue Chart
         const revenueCtx = document.getElementById('revenueChart').getContext('2d');
         const revenueChart = new Chart(revenueCtx, {
             type: 'line',
@@ -133,7 +131,6 @@
             },
         });
 
-        // Initialize Order Status Chart
         const orderStatusCtx = document.getElementById('orderStatusChart').getContext('2d');
         const orderStatusChart = new Chart(orderStatusCtx, {
             type: 'pie',

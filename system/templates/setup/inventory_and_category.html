@@ -134,7 +134,6 @@
 
 <script>
   $(document).ready(function () {
-    // Predefined data for categories
     const predefinedCategories = [
       { name: "Ink", unit: "liters" },          // Liters
       { name: "Textiles", unit: "meters" },     // Meters
@@ -149,7 +148,6 @@
       { name: "Other", unit: null },       // Other
     ];
 
-    // Available units for the dropdown
     const availableUnits = ["qty", "liters", "meters", "cm", "mm", "kg", "grams", "pcs", "rolls", "sheets"];
 
     const inputField = document.getElementById('category');
@@ -160,7 +158,6 @@
     const unitDisplay = document.getElementById('unit-display');
     const unitSelect = document.getElementById('unit-select');
 
-    // Populate dropdown with predefined categories
     inputField.addEventListener('focus', function () {
       dropdown.innerHTML = '';
       predefinedCategories.forEach(category => {
@@ -195,16 +192,13 @@
       dropdown.classList.remove('hidden');
     });
 
-    // Hide dropdown on blur
     inputField.addEventListener('blur', function () {
       setTimeout(() => dropdown.classList.add('hidden'), 250);
     });
 
-    // Sidebar toggling
     openSidebar.addEventListener('click', () => sidebar.classList.remove('hidden'));
     closeSidebar.addEventListener('click', () => sidebar.classList.add('hidden'));
 
-    // Handle manual input for categories
     inputField.addEventListener('input', () => {
       const category = predefinedCategories.find(cat => cat.name === inputField.value);
 
@@ -217,7 +211,6 @@
           unitDisplay.classList.add('hidden');
           unitSelect.classList.remove('hidden');
 
-          // Populate the unit dropdown for manual entry or "Other"
           unitSelect.innerHTML = '';
           availableUnits.forEach(unit => {
             const option = document.createElement('option');
@@ -246,15 +239,14 @@
   </div>
   {% endif %}
   <script>
-    // Fade out the success message after 3 seconds
     document.addEventListener('DOMContentLoaded', function () {
       const successMessage = document.getElementById('success-message');
       if (successMessage) {
         setTimeout(() => {
           successMessage.style.transition = 'opacity 0.5s ease';
           successMessage.style.opacity = '0';
-          setTimeout(() => successMessage.remove(), 500); // Remove after fade-out
-        }, 3000); // 3 seconds delay before starting fade-out
+          setTimeout(() => successMessage.remove(), 500);
+        }, 3000);
       }
     });
   </script>

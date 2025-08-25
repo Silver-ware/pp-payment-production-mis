@@ -11,4 +11,4 @@ def dynamic_url(url_name, *args, **kwargs):
     try:
         return reverse(url_name, args=args, kwargs=kwargs)
     except NoReverseMatch:
-        return ''  # Return an empty string if the URL cannot be resolved
+        return ''  # Resturn an unresolve  empty string

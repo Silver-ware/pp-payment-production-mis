@@ -1,19 +1,39 @@
-<div id="order-modal-{{modal}}" class="fixed inset-0 bg-gray-900 bg-opacity-50 w-full hidden z-50">
+<div
+  id="order-modal-{{modal}}"
+  class="fixed inset-0 bg-gray-900 bg-opacity-50 w-full hidden z-50"
+>
   <div class="flex items-center justify-center h-full w-full overflow-y-hidden">
-    <div class="bg-white rounded-lg shadow-lg w-[45%] h-[70%] overflow-y-hidden p-4 relative">
-      <i class="fas fa-clipboard-list text-green-700 absolute top-5 left-6 text-4xl"></i>
-      <button id="close-modal-{{modal}}" class="absolute top-3 right-4 text-gray-500 hover:text-gray-800 hover:scale-125 transition-all ease-in-out">
+    <div
+      class="bg-white rounded-lg shadow-lg w-[45%] h-[70%] overflow-y-hidden p-4 relative"
+    >
+      <i
+        class="fas fa-clipboard-list text-green-700 absolute top-5 left-6 text-4xl"
+      ></i>
+      <button
+        id="close-modal-{{modal}}"
+        class="absolute top-3 right-4 text-gray-500 hover:text-gray-800 hover:scale-125 transition-all ease-in-out"
+      >
         <i class="fas fa-times"></i>
       </button>
-      <div class="flex h-full flex-col items-center justify-between pt-4 overflow-y-hidden">
-        <h2 id="modal-order-name-{{modal}}" class="w-[80%] text-lg font-semibold text-center text-gray-800 pb-1 border-dashed border-b border-b-green-800"></h2>
-        <span id="status-{{modal}}" class="text-4xl font-bold text-center mb-2 mt-4"></span>
+      <div
+        class="flex h-full flex-col items-center justify-between pt-4 overflow-y-hidden"
+      >
+        <h2
+          id="modal-order-name-{{modal}}"
+          class="w-[80%] text-lg font-semibold text-center text-gray-800 pb-1 border-dashed border-b border-b-green-800"
+        ></h2>
+        <span
+          id="status-{{modal}}"
+          class="text-4xl font-bold text-center mb-2 mt-4"
+        ></span>
         <div class="flex w-full justify-between my-2 px-2">
           <span id="created-at-{{modal}}" class="italic"></span>
           <span id="deadline-date-{{modal}}" class="font-bold"></span>
         </div>
         <!-- Container with fixed height and scrolling -->
-        <div class="w-full h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-green-500 scrollbar-track-gray-300 mb-2">
+        <div
+          class="w-full h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-green-500 scrollbar-track-gray-300 mb-2"
+        >
           <table class="w-full">
             <thead class="sticky top-0">
               <tr class="bg-gray-100">
@@ -27,18 +47,32 @@
           </table>
         </div>
 
-        <div id="modal-nav-{{modal}}" class="w-full flex justify-between items-center space-x-4 mt-2">
+        <div
+          id="modal-nav-{{modal}}"
+          class="w-full flex justify-between items-center space-x-4 mt-2"
+        >
           <!-- Cancel Order Button -->
-          <button id="cancel-order-btn-{{modal}}" class="px-4 py-2 bg-red-500 text-white text-sm rounded-lg shadow hover:bg-red-600">
+          <button
+            id="cancel-order-btn-{{modal}}"
+            class="px-4 py-2 bg-red-500 text-white text-sm rounded-lg shadow hover:bg-red-600"
+          >
             <i class="fas fa-ban mr-2"></i>Cancel Order
           </button>
           <div class="flex items-center justify-between gap-2">
             <!-- Configure Payment Button -->
-            <a id="configure-payment-btn-{{modal}}" href="#" class="px-4 py-2 bg-blue-500 text-white text-sm rounded-lg shadow hover:bg-blue-600">
+            <a
+              id="configure-payment-btn-{{modal}}"
+              href="#"
+              class="px-4 py-2 bg-blue-500 text-white text-sm rounded-lg shadow hover:bg-blue-600"
+            >
               <i class="fas fa-credit-card mr-2"></i>Configure Payment
             </a>
             <!-- Manage Production Button -->
-            <a id="manage-production-btn-{{modal}}" href="#" class="px-4 py-2 bg-green-500 text-white text-sm rounded-lg shadow hover:bg-green-600">
+            <a
+              id="manage-production-btn-{{modal}}"
+              href="#"
+              class="px-4 py-2 bg-green-500 text-white text-sm rounded-lg shadow hover:bg-green-600"
+            >
               <i class="fas fa-cogs mr-2"></i>Manage Production
             </a>
           </div>
@@ -48,47 +82,82 @@
   </div>
 </div>
 
-
-
 <!-- Overlay Modal for Superuser Authorization -->
-<div id="auth-overlay-{{modal}}" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden z-50">
+<div
+  id="auth-overlay-{{modal}}"
+  class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden z-50"
+>
   <div class="flex items-center justify-center h-full">
     <div class="bg-white rounded-lg shadow-lg w-[90%] max-w-md p-6 relative">
-      <button id="close-auth-overlay-{{modal}}" class="absolute top-3 right-4 text-gray-500 hover:text-gray-800 hover:scale-125 transition-all ease-in-out">
+      <button
+        id="close-auth-overlay-{{modal}}"
+        class="absolute top-3 right-4 text-gray-500 hover:text-gray-800 hover:scale-125 transition-all ease-in-out"
+      >
         <i class="fas fa-times"></i>
       </button>
       <div>
-        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2"><i class="fas fa-exclamation-triangle text-yellow-300"></i>  Authorization Required</h3>
-        <p class="text-sm text-gray-600 mb-4">Only administrators can cancel this order. Please provide an admin password below:</p>
+        <h3
+          class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2"
+        >
+          <i class="fas fa-exclamation-triangle text-yellow-300"></i>
+          Authorization Required
+        </h3>
+        <p class="text-sm text-gray-600 mb-4">
+          Only administrators can cancel this order. Please provide an admin
+          password below:
+        </p>
         <form id="admin-auth-form-{{modal}}" class="space-y-4">
           {% csrf_token %}
           <!-- Username Field -->
           <div class="relative">
-              <label for="id_username-{{modal}}" class="block text-gray-700 font-medium mb-1">Username:</label>
-              <div class="flex items-center border rounded-lg px-2 focus-within:ring-green-800 focus-within:border-green-600 focus-within:border-2">
-                  <i class="fa fa-user text-gray-500 mr-2"></i>
-                  <input type="text" name="username" id="admin-username-{{modal}}" placeholder="Superuser Username" required 
-                      class="w-full focus:outline-none focus:ring-0 focus:border-none border-none"
-                  >
-              </div>
+            <label
+              for="id_username-{{modal}}"
+              class="block text-gray-700 font-medium mb-1"
+              >Username:</label
+            >
+            <div
+              class="flex items-center border rounded-lg px-2 focus-within:ring-green-800 focus-within:border-green-600 focus-within:border-2"
+            >
+              <i class="fa fa-user text-gray-500 mr-2"></i>
+              <input
+                type="text"
+                name="username"
+                id="admin-username-{{modal}}"
+                placeholder="Superuser Username"
+                required
+                class="w-full focus:outline-none focus:ring-0 focus:border-none border-none"
+              />
+            </div>
           </div>
-      
+
           <!-- Password Field -->
           <div class="relative">
-              <label for="id_password-{{modal}}" class="block text-gray-700 font-medium mb-1">Password:</label>
-              <div class="flex items-center border rounded-lg px-2 focus-within:ring-green-800 focus-within:border-green-600">
-                  <i class="fa fa-lock text-gray-500 mr-2"></i>
-                  <input type="password" name="password" id="admin-password-{{modal}}" placeholder="Password" required 
-                      class="w-full focus:outline-none focus:ring-0 focus:border-none border-none"
-                  >
-              </div>
+            <label
+              for="id_password-{{modal}}"
+              class="block text-gray-700 font-medium mb-1"
+              >Password:</label
+            >
+            <div
+              class="flex items-center border rounded-lg px-2 focus-within:ring-green-800 focus-within:border-green-600"
+            >
+              <i class="fa fa-lock text-gray-500 mr-2"></i>
+              <input
+                type="password"
+                name="password"
+                id="admin-password-{{modal}}"
+                placeholder="Password"
+                required
+                class="w-full focus:outline-none focus:ring-0 focus:border-none border-none"
+              />
+            </div>
           </div>
-      
+
           <!-- Submit Button -->
-          <button 
-              type="submit" 
-              class="w-full px-4 py-2 bg-green-500 text-white rounded-lg shadow hover:bg-green-600 flex items-center justify-center">
-              <i class="fa fa-check-circle mr-2"></i> Authorize
+          <button
+            type="submit"
+            class="w-full px-4 py-2 bg-green-500 text-white rounded-lg shadow hover:bg-green-600 flex items-center justify-center"
+          >
+            <i class="fa fa-check-circle mr-2"></i> Authorize
           </button>
         </form>
       </div>
@@ -101,99 +170,112 @@
     let doubleClickTimer;
 
     // Handle double-click on order items
-    $('.order-item-{{modal}}').on('click', function () {
+    $(".order-item-{{modal}}").on("click", function () {
       const $this = $(this);
-      
+
       clearTimeout(doubleClickTimer);
-  
+
       doubleClickTimer = setTimeout(function () {
-        const status = $this.find('#order-status-{{modal}}').text().trim();
-        if(status == "COMPLETED" || status == "CANCELLED"){
+        const status = $this.find("#order-status-{{modal}}").text().trim();
+        if (status == "COMPLETED" || status == "CANCELLED") {
           //console.log("Shit" +  status);
-          $('#modal-nav-{{modal}}').addClass('hidden');
-          console.log($('#modal-nav'));
-        } else{
-          $('#modal-nav-{{modal}}').removeClass('hidden');
+          $("#modal-nav-{{modal}}").addClass("hidden");
+          console.log($("#modal-nav"));
+        } else {
+          $("#modal-nav-{{modal}}").removeClass("hidden");
         }
-        // Get the text content of the div using jQuery
-        const jsonText = $this.find("#jobs-specifications-{{modal}}").text().trim();
+        const jsonText = $this
+          .find("#jobs-specifications-{{modal}}")
+          .text()
+          .trim();
 
         let data = {};
         try {
-            // Replace single quotes with double quotes
-            const correctedJsonText = jsonText.replace(/'/g, '"');
-            
-            data = JSON.parse(correctedJsonText);
-            console.log("Parsed JSON Object:", data);
+          const correctedJsonText = jsonText.replace(/'/g, '"');
+
+          data = JSON.parse(correctedJsonText);
+          console.log("Parsed JSON Object:", data);
         } catch (error) {
-            console.error("Error parsing JSON:", error.message);
+          console.error("Error parsing JSON:", error.message);
         }
 
-        const orderId = $this.data('order-id');
-        const dateCreated = $this.find('#date-created-{{modal}}').text();
-        const deadline = $this.find('#deadline-{{modal}}').text();
-        const serviceName = $this.find('#service-selected-{{modal}}').text();
-        const customerName = $this.find('#customer-name-{{modal}}').text();
-        
-        
-        
+        const orderId = $this.data("order-id");
+        const dateCreated = $this.find("#date-created-{{modal}}").text();
+        const deadline = $this.find("#deadline-{{modal}}").text();
+        const serviceName = $this.find("#service-selected-{{modal}}").text();
+        const customerName = $this.find("#customer-name-{{modal}}").text();
 
-        // Update modal content
-        $('#modal-order-name-{{modal}}').text(`${serviceName} - ${customerName}`);
-        const $status_text = $('#status-{{modal}}');
+        //update modal content
+        $("#modal-order-name-{{modal}}").text(
+          `${serviceName} - ${customerName}`
+        );
+        const $status_text = $("#status-{{modal}}");
         $status_text.text(status);
-        $('#created-at-{{modal}}').text("Date Ordered: " + dateCreated);
+        $("#created-at-{{modal}}").text("Date Ordered: " + dateCreated);
 
-        rightDate = status === 'COMPLETED' ? "Completed: " : status === 'CANCELLED' ? "Cancelled: " : "Deadline :";
-        $('#deadline-date-{{modal}}').text(rightDate + " " + deadline);
+        rightDate =
+          status === "COMPLETED"
+            ? "Completed: "
+            : status === "CANCELLED"
+            ? "Cancelled: "
+            : "Deadline :";
+        $("#deadline-date-{{modal}}").text(rightDate + " " + deadline);
         const tableBody = $("#specifications-{{modal}}");
         tableBody.empty();
 
-        let lastSpecification = '';
+        let lastSpecification = "";
 
-        data.jobs_specifications.forEach(item => {
-            const isRepeated = item.specification === lastSpecification;
-            const specificationCell = isRepeated
-                ? `<td class="px-4 py-2 border-b text-gray-400 pl-4">↳</td>` 
-                : `<td class="px-4 py-2 border-b">${item.specification}</td>`;
+        data.jobs_specifications.forEach((item) => {
+          const isRepeated = item.specification === lastSpecification;
+          const specificationCell = isRepeated
+            ? `<td class="px-4 py-2 border-b text-gray-400 pl-4">↳</td>`
+            : `<td class="px-4 py-2 border-b">${item.specification}</td>`;
 
-            const row = `<tr>
+          const row = `<tr>
                 ${specificationCell}
                 <td class="px-4 py-2 border-b">${item.details}</td>
             </tr>`;
-            tableBody.append(row);
+          tableBody.append(row);
 
-            lastSpecification = item.specification;
+          lastSpecification = item.specification;
         });
 
-
-
-        if (status === 'PENDING') {
-          $status_text.removeClass('text-gray-700 text-green-700 text-red-700')
-                      .addClass('text-yellow-700'); // Yellow for PENDING
-        } else if (status === 'COMPLETED') {
-            $status_text.removeClass('text-gray-700 text-yellow-700 text-red-700')
-                        .addClass('text-green-700'); // Green for COMPLETED
-        } else if (status === 'CANCELLED') {
-            $status_text.removeClass('text-gray-700 text-yellow-700 text-green-700')
-                        .addClass('text-red-700'); // Red for CANCELLED
+        if (status === "PENDING") {
+          $status_text
+            .removeClass("text-gray-700 text-green-700 text-red-700")
+            .addClass("text-yellow-700");
+        } else if (status === "COMPLETED") {
+          $status_text
+            .removeClass("text-gray-700 text-yellow-700 text-red-700")
+            .addClass("text-green-700");
+        } else if (status === "CANCELLED") {
+          $status_text
+            .removeClass("text-gray-700 text-yellow-700 text-green-700")
+            .addClass("text-red-700");
         } else {
-            $status_text.removeClass('text-yellow-700 text-green-700 text-red-700')
-                        .addClass('text-gray-700'); // Default gray for other statuses
+          $status_text
+            .removeClass("text-yellow-700 text-green-700 text-red-700")
+            .addClass("text-gray-700");
         }
 
-        $('#order-modal-{{modal}}').attr('data-order-id', `${orderId}`);
-        $('#configure-payment-btn-{{modal}}').attr('href', `/payment/${orderId}/`);
-        $('#manage-production-btn-{{modal}}').attr('href', `/production/${orderId}/`);
-  
+        $("#order-modal-{{modal}}").attr("data-order-id", `${orderId}`);
+        $("#configure-payment-btn-{{modal}}").attr(
+          "href",
+          `/payment/${orderId}/`
+        );
+        $("#manage-production-btn-{{modal}}").attr(
+          "href",
+          `/production/${orderId}/`
+        );
+
         // Show modal
-        $('#order-modal-{{modal}}').removeClass('hidden');
+        $("#order-modal-{{modal}}").removeClass("hidden");
       }, 250);
     });
-  
+
     // Close modal
-    $('#close-modal-{{modal}}').on('click', function () {
-      $('#order-modal-{{modal}}').addClass('hidden');
+    $("#close-modal-{{modal}}").on("click", function () {
+      $("#order-modal-{{modal}}").addClass("hidden");
     });
   });
 </script>
@@ -205,7 +287,7 @@
     const csrfToken = $('meta[name="csrf-token"]').attr('content');
     function checkSuperuser(callback) {
       $.ajax({
-        url: "{% url 'verify_superuser' %}", // Django URL for verifying superuser
+        url: "{% url 'verify_superuser' %}",
         type: "GET",
         headers: { "X-Requested-With": "XMLHttpRequest" },
         success: function(response) {
@@ -214,10 +296,10 @@
         },
         error: function(xhr, status, error) {
           console.error("Failed to verify superuser status:", error);
-          callback(false); // Call back with false if there's an error
+          callback(false); // Kun may error
         },
       });
-    }    
+    }
 
     // Handle Cancel Order button
     $('#cancel-order-btn-{{modal}}').on('click', function () {
@@ -229,17 +311,16 @@
         }
       });
     });
-  
+
     // Handle Admin Authentication
     $('#admin-auth-form-{{modal}}').on('submit', function (e) {
       e.preventDefault();
-      
+
       const orderId = $('#order-modal-{{modal}}').data('order-id');
       console.log("ORDER ID:" + orderId);
       const currentPage = {{ pending_progress.number|default:1 }} || 1;
       const formData = new FormData(this);
 
-      // Append additional data to FormData
       formData.append('order_id', orderId);
       formData.append('page_pp', currentPage);
       formData.append('csrfmiddlewaretoken', csrfToken);
@@ -254,7 +335,6 @@
               const completed_tab = $('button[data-tab="completed-orders"]');
               completed_tab.addClass('scale-150');
 
-              // Remove the effect after a brief moment
               setTimeout(function() {
                   completed_tab.removeClass('scale-150');
               }, 1200);
@@ -267,7 +347,6 @@
               $('#search-results').empty();
               $('#search-input').val(search).trigger('input');
 
-              // Hide the modal
               $('#order-modal-{{modal}}').addClass('hidden');
               $('#auth-overlay-{{modal}}').addClass('hidden');
           },
@@ -277,24 +356,24 @@
       });
     });
 
-  
+
     // Close Auth Overlay
     $('#close-auth-overlay-{{modal}}').on('click', function () {
       $('#auth-overlay-{{modal}}').addClass('hidden');
     });
-  
+
     function cancelOrder() {
       console.log("Cancel Function");
       const orderId = $('#order-modal-{{modal}}').data('order-id');
       const currentPage = {{ pending_progress.number|default:1 }} || 1;
-      console.log('Current Page:', currentPage); 
+      console.log('Current Page:', currentPage);
 
       $.ajax({
           url: `/orders/${orderId}/cancel/`,
           method: 'POST',
           data: {
               csrfmiddlewaretoken: csrfToken,
-              page_pp: currentPage  // Pass the current page number
+              page_pp: currentPage
           },
           success: function (response) {
               const completed_tab = $('button[data-tab="completed-orders"]');
@@ -302,10 +381,10 @@
               setTimeout(function() {
                   completed_tab.removeClass('scale-150');
               }, 1200);
-  
+
               $('#order-queue').html(response.orders_queue);
               displayMessageOverlay("allowed", response.message, "cancelled.", 1);
-  
+
               $('#order-modal-{{modal}}').addClass('hidden');
           },
           error: function () {
@@ -313,30 +392,27 @@
           }
       });
     }
-  
+
     // Function to display the overlay message
     function displayMessageOverlay(operation_state, message, operation_name, name_color) {
       const backgroundColor = operation_state === 'allowed' ? 'bg-green-500' : 'bg-red-900';
       let operationColor = name_color == 0 ? 'text-green-400' : name_color == 1 ? 'text-red-700': 'text-yellow-400';
-  
+
       const overlay = $(`<div class="fixed top-0 left-0 right-0 ${backgroundColor} text-white text-center p-3 z-50 transition-transform transform -translate-y-full" id="message-overlay"></div>`);
       overlay.append(message + ` <span class="font-semibold ${operationColor}"> ${operation_name}</span>`);
-    
-      // Append the overlay to the body
+
       $('body').append(overlay);
-    
-      // Small delay before showing the overlay
+
       setTimeout(function() {
           overlay.removeClass('-translate-y-full').addClass('translate-y-0');
       }, 100);
-    
-      // Hide the overlay after 3 seconds
+
       setTimeout(function() {
           overlay.removeClass('translate-y-0').addClass('-translate-y-full');
           setTimeout(function() {
               overlay.remove();
-          }, 500); // Remove the overlay after the sliding animation
-      }, 3000); // Show the message for 3 seconds
+          }, 500);
+      }, 3000);
     }
   });
 </script>
