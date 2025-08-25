@@ -1,1 +1,1 @@
-# pp-payment-production-mis
+# Printing Press Production and Payment Management Information System
